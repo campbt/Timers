@@ -1,21 +1,15 @@
 package com.tyler.SmiteTimers.windows;
 
-import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Scanner;
 
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
-import javax.swing.JLabel;
 import javax.swing.JOptionPane;
-import javax.swing.JTextField;
-import javax.swing.SpringLayout;
 import javax.swing.SwingUtilities;
-import javax.swing.WindowConstants;
 import org.jnativehook.GlobalScreen;
 import org.jnativehook.NativeHookException;
 import org.jnativehook.keyboard.NativeKeyEvent;
