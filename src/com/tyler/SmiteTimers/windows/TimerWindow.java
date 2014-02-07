@@ -15,17 +15,23 @@ import org.jnativehook.NativeHookException;
 import org.jnativehook.keyboard.NativeKeyEvent;
 import org.jnativehook.keyboard.NativeKeyListener;
 
+import com.tyler.SmiteTimers.core.Timer;
 import com.tyler.SmiteTimers.panels.TimerPanel;
 
 public class TimerWindow extends JFrame implements NativeKeyListener, WindowListener  {
 
-    private List<TimerPanel> timerPanels = new LinkedList<TimerPanel>();
+    private List<Timer> timers = new LinkedList<Timer>();
 
     public TimerWindow() {
         // Test Data
-        this.timerPanels.add(new TimerPanel(100000,"Gold Fury",null));
-        this.timerPanels.add(new TimerPanel(100000,"Fire Giant",null));
-        this.timerPanels.add(new TimerPanel(100000,"Blue Buff",null));
+        this.timers.add(new Timer(100000));
+        this.timers.add(new Timer(110000));
+        this.timers.add(new Timer(120000));
+
+        List<TimerPanel> timerPanels = new LinkedList<TimerPanel>();
+        timerPanels.add(new TimerPanel(this.timers.get(0),"Gold Fury",null));
+        timerPanels.add(new TimerPanel(this.timers.get(1),"Fire Giant",null));
+        timerPanels.add(new TimerPanel(this.timers.get(2),"Blue Buff",null));
 
         // Initial Parameters
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -35,7 +41,7 @@ public class TimerWindow extends JFrame implements NativeKeyListener, WindowList
 
         int height = 0;
         int width = 0;
-        for(TimerPanel panel: this.timerPanels) {
+        for(TimerPanel panel: timerPanels) {
             this.add(panel);
             height += panel.getFrameHeight();
             width = Math.max(width, panel.getFrameWidth());

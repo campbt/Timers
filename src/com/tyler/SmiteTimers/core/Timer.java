@@ -49,6 +49,14 @@ public class Timer {
         }
     }
 
+    public long getTime() {
+        return time;
+    }
+
+    public long getTimerLength() {
+        return timerLength;
+    }
+
     public void addTimeUpdatedListener(TimeUpdatedListener listener) {
         timeUpdatedListeners.add(listener);
     }

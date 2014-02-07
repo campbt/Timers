@@ -17,13 +17,10 @@ public class TimerPanel extends JPanel implements Timer.TimeUpdatedListener {
     JLabel timerText;
     JLabel title;
 
-    Timer timer;
+    public TimerPanel(Timer timer, String titleText, String imagePath) {
 
-    public TimerPanel(long time, String titleText, String imagePath) {
-
-        this.timer = new Timer(time);
-        this.timer.addTimeUpdatedListener(this);
-        this.timer.start();
+        timer.addTimeUpdatedListener(this);
+        timer.start();
 
         SpringLayout layout = new SpringLayout();
         this.setLayout(layout);
@@ -52,7 +49,7 @@ public class TimerPanel extends JPanel implements Timer.TimeUpdatedListener {
             }
         }
 
-        timeUpdated(time);
+        timeUpdated(timer.getTime());
     }
 
     @Override
