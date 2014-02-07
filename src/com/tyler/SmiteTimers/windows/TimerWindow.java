@@ -118,13 +118,6 @@ public class TimerWindow extends JFrame implements NativeKeyListener, WindowList
         if(keysMapper.containsKey(e.getKeyCode())) {
             keysMapper.get(e.getKeyCode()).toggle();
         }
-        if (e.getKeyCode() == NativeKeyEvent.VK_SPACE) {
-            SwingUtilities.invokeLater(new Runnable() {
-                public void run() {
-                    JOptionPane.showMessageDialog(null, "This will run on Swing's Event Dispatch Thread.");
-                }
-            });
-        }
     }
 
     public void nativeKeyPressed(NativeKeyEvent e) { /* Unimplemented */ }
