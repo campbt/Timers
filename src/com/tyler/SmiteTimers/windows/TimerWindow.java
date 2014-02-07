@@ -3,8 +3,10 @@ package com.tyler.SmiteTimers.windows;
 import java.awt.Dimension;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
@@ -21,12 +23,17 @@ import com.tyler.SmiteTimers.panels.TimerPanel;
 public class TimerWindow extends JFrame implements NativeKeyListener, WindowListener  {
 
     private List<Timer> timers = new LinkedList<Timer>();
+    private Map<Integer, Timer> keysMapper = new HashMap<Integer, Timer>();
 
     public TimerWindow() {
         // Test Data
         this.timers.add(new Timer(100000));
         this.timers.add(new Timer(110000));
         this.timers.add(new Timer(120000));
+
+        this.keysMapper.put(NativeKeyEvent.VK_I, this.timers.get(0));
+        this.keysMapper.put(NativeKeyEvent.VK_O, this.timers.get(1));
+        this.keysMapper.put(NativeKeyEvent.VK_P, this.timers.get(2));
 
         List<TimerPanel> timerPanels = new LinkedList<TimerPanel>();
         timerPanels.add(new TimerPanel(this.timers.get(0),"Gold Fury",null));
@@ -85,7 +92,9 @@ public class TimerWindow extends JFrame implements NativeKeyListener, WindowList
     public void windowDeactivated(WindowEvent e) { /* Unimplemented */ }
 
     public void nativeKeyReleased(NativeKeyEvent e) {
-        System.out.println("You pressed: " + e);
+        if(keysMapper.containsKey(e.getKeyCode())) {
+            keysMapper.get(e.getKeyCode()).toggle();
+        }
         if (e.getKeyCode() == NativeKeyEvent.VK_SPACE) {
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {

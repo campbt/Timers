@@ -30,6 +30,18 @@ public class Timer {
         this.alertIncrement = alertIncrement;
     }
 
+    /**
+     * Starts timer if it is stopped and resets timer if it is running
+     */
+    public void toggle() {
+        System.out.println("Toggled: " + timerLength);
+        if(time == timerLength) {
+            this.start();
+        } else {
+            this.reset();
+        }
+    }
+
     public void start() {
         this.timerThread.start();
     }
@@ -37,6 +49,9 @@ public class Timer {
     public void reset() {
         time = timerLength;
         this.timerThread.turnOff();
+
+        alertListners();
+        this.timerThread = new TimerThread();
     }
 
     public void addAlert(Alert alert) {
@@ -86,8 +101,10 @@ public class Timer {
 
                 }
                 // Update time and alert listeners that has a change has occured
-                Timer.this.time -= Timer.this.alertIncrement;
-                Timer.this.alertListners();
+                if(this.running) {
+                    Timer.this.time -= Timer.this.alertIncrement;
+                    Timer.this.alertListners();
+                }
             }
         }
 
