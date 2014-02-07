@@ -34,9 +34,9 @@ public class TimerWindow extends JFrame implements NativeKeyListener, WindowList
         this.getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.PAGE_AXIS));
 
         // Test
-        this.add(new TimerPanel(100,"Gold Fury",null));
-        this.add(new TimerPanel(100,"Fire Giant",null));
-        this.add(new TimerPanel(100,"Blue Buff",null));
+        this.add(new TimerPanel(100000,"Gold Fury",null));
+        this.add(new TimerPanel(100000,"Fire Giant",null));
+        this.add(new TimerPanel(100000,"Blue Buff",null));
 
         //this.setSize(300, 300);
         this.setBounds(10,10,300,300);

@@ -26,9 +26,12 @@ public class Timer {
         assert(time % alertIncrement == 0); //  The alert increment needs to evenly go into the total time of the timer
 
         this.timerLength = time;
+        this.time = time;
         this.alertIncrement = alertIncrement;
+    }
 
-        //timerThread.
+    public void start() {
+        this.timerThread.start();
     }
 
     public void reset() {
@@ -41,6 +44,7 @@ public class Timer {
     }
 
     public void alertListners() {
+        System.out.println("Alerting listeners");
         for(TimeUpdatedListener listener: this.timeUpdatedListeners) {
             listener.timeUpdated(this.time);
         }
