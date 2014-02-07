@@ -1,5 +1,6 @@
 package com.tyler.SmiteTimers.panels;
 
+import java.awt.Color;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -27,12 +28,14 @@ public class TimerPanel extends JPanel implements Timer.TimeUpdatedListener {
 
         // Create the Title layout
         this.title = new JLabel(titleText);
+        this.title.setForeground(Color.WHITE);
         this.add(this.title);
         layout.putConstraint(SpringLayout.WEST, this.title, 5, SpringLayout.WEST, this);
         layout.putConstraint(SpringLayout.NORTH, this.title, 5, SpringLayout.NORTH, this);
 
         // Create timer layout
         this.timerText = new JLabel("00:00");
+        this.timerText.setForeground(Color.WHITE);
         this.add(this.timerText);
         layout.putConstraint(SpringLayout.NORTH, this.timerText, 5, SpringLayout.SOUTH, title); // Above timer
         layout.putConstraint(SpringLayout.WEST, this.timerText, 5, SpringLayout.WEST, this);        

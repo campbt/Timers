@@ -1,5 +1,6 @@
 package com.tyler.SmiteTimers.windows;
 
+import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
@@ -44,6 +45,7 @@ public class TimerWindow extends JFrame implements NativeKeyListener, WindowList
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setTitle("Smite Timers");
         this.addWindowListener(this);
+        this.setBackground(new Color(0f,0f,0f));
         this.getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.PAGE_AXIS));
 
         int height = 0;
