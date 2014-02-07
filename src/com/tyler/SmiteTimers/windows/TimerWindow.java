@@ -2,6 +2,7 @@ package com.tyler.SmiteTimers.windows;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.GridLayout;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.util.HashMap;
@@ -27,6 +28,34 @@ public class TimerWindow extends JFrame implements NativeKeyListener, WindowList
     private Map<Integer, Timer> keysMapper = new HashMap<Integer, Timer>();
 
     public TimerWindow() {
+        List<TimerPanel> timerPanels = loadData();
+
+        // Initial Parameters
+        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        this.setTitle("Smite Timers");
+        this.addWindowListener(this);
+        this.setBackground(new Color(0f,0f,0f));
+        this.getContentPane().setLayout(new GridLayout(4,2));
+
+        int height = 0;
+        int width = 0;
+        for(TimerPanel panel: timerPanels) {
+            this.add(panel);
+            height += panel.getFrameHeight();
+            width = Math.max(width, panel.getFrameWidth());
+        }
+        width = width * 2 + 5;
+        height = height / 2;
+
+        this.setBounds(10,10,300,300);
+        this.setPreferredSize(new Dimension(width,height));
+        this.setMinimumSize(new Dimension(width,height));
+        this.setMaximumSize(new Dimension(width,height));
+        this.pack();
+        this.setVisible(true);
+    }
+
+    public List<TimerPanel> loadData() {
         // Test Data
         this.timers.add(new Timer(100000));
         this.timers.add(new Timer(110000));
@@ -37,31 +66,23 @@ public class TimerWindow extends JFrame implements NativeKeyListener, WindowList
         this.keysMapper.put(NativeKeyEvent.VK_P, this.timers.get(2));
 
         List<TimerPanel> timerPanels = new LinkedList<TimerPanel>();
-        timerPanels.add(new TimerPanel(this.timers.get(0),"Gold Fury",null));
-        timerPanels.add(new TimerPanel(this.timers.get(1),"Fire Giant",null));
-        timerPanels.add(new TimerPanel(this.timers.get(2),"Blue Buff",null));
+        timerPanels.add(constructTimerPanel(300000, "Gold Fury", null, NativeKeyEvent.VK_7));
+        timerPanels.add(constructTimerPanel(300000, "Fire Giant", null, NativeKeyEvent.VK_8));
+        timerPanels.add(constructTimerPanel(120000, "Left Furies", null, NativeKeyEvent.VK_U));
+        timerPanels.add(constructTimerPanel(120000, "Right Furies", null, NativeKeyEvent.VK_I));
+        timerPanels.add(constructTimerPanel(240000, "Left Blue", null, NativeKeyEvent.VK_J));
+        timerPanels.add(constructTimerPanel(240000, "Right Blue", null, NativeKeyEvent.VK_K));
+        timerPanels.add(constructTimerPanel(240000, "Speed Buff", null, NativeKeyEvent.VK_M));
+        timerPanels.add(constructTimerPanel(240000, "Damage Buff", null, NativeKeyEvent.VK_COMMA));
 
-        // Initial Parameters
-        this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setTitle("Smite Timers");
-        this.addWindowListener(this);
-        this.setBackground(new Color(0f,0f,0f));
-        this.getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.PAGE_AXIS));
+        return timerPanels;
+    }
 
-        int height = 0;
-        int width = 0;
-        for(TimerPanel panel: timerPanels) {
-            this.add(panel);
-            height += panel.getFrameHeight();
-            width = Math.max(width, panel.getFrameWidth());
-        }
-
-        this.setBounds(10,10,300,300);
-        this.setPreferredSize(new Dimension(width,height));
-        this.setMinimumSize(new Dimension(width,height));
-        this.setMaximumSize(new Dimension(width,height));
-        this.pack();
-        this.setVisible(true);
+    private TimerPanel constructTimerPanel(long time, String title, String imagePath, int key) {
+        Timer timer = new Timer(time);
+        this.timers.add(timer);
+        this.keysMapper.put(key, timer);
+        return new TimerPanel(timer, title, imagePath);
     }
 
     public void windowOpened(WindowEvent e) {
