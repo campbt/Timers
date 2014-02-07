@@ -1,12 +1,17 @@
 package com.tyler.SmiteTimers.windows;
 
+import java.awt.Container;
+import java.awt.Dimension;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.util.Scanner;
 
+import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import javax.swing.JTextField;
+import javax.swing.SpringLayout;
 import javax.swing.SwingUtilities;
 import javax.swing.WindowConstants;
 import org.jnativehook.GlobalScreen;
@@ -14,18 +19,29 @@ import org.jnativehook.NativeHookException;
 import org.jnativehook.keyboard.NativeKeyEvent;
 import org.jnativehook.keyboard.NativeKeyListener;
 
+import com.tyler.SmiteTimers.panels.TimerPanel;
+
 public class TimerWindow extends JFrame implements NativeKeyListener, WindowListener  {
+
+    public static final int FRAME_WIDTH = 200;
 
     public TimerWindow() {
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-        JLabel label = new JLabel("Hello World");
-        this.getContentPane().add(label);
-
         this.setTitle("JNativeHook test");
-        this.setSize(300, 150);
         this.addWindowListener(this);
 
+        this.getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.PAGE_AXIS));
+
+        // Test
+        this.add(new TimerPanel());
+        this.add(new TimerPanel());
+        this.add(new TimerPanel());
+
+        //this.setSize(300, 300);
+        this.setBounds(10,10,300,300);
+        this.setPreferredSize(new Dimension(FRAME_WIDTH,300));
+        this.setMinimumSize(new Dimension(FRAME_WIDTH,300));
         this.pack();
         this.setVisible(true);
     }
@@ -60,6 +76,7 @@ public class TimerWindow extends JFrame implements NativeKeyListener, WindowList
     public void windowDeactivated(WindowEvent e) { /* Unimplemented */ }
 
     public void nativeKeyReleased(NativeKeyEvent e) {
+        System.out.println("You pressed: " + e);
         if (e.getKeyCode() == NativeKeyEvent.VK_SPACE) {
             SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
