@@ -52,6 +52,8 @@ public class TimerPanel extends JPanel implements Timer.TimeUpdatedListener {
                 e.printStackTrace();
             }
         }
+
+        timeUpdated(time);
     }
 
     @Override
@@ -59,6 +61,14 @@ public class TimerPanel extends JPanel implements Timer.TimeUpdatedListener {
         long seconds = timeInMilli / 1000 % 60;
         long minutes = timeInMilli /  1000 / 60;
         this.timerText.setText(String.format("%02d:%02d", minutes, seconds));
+    }
+
+    public int getFrameWidth() {
+        return 100;
+    }
+
+    public int getFrameHeight() {
+        return 50;
     }
 
 }

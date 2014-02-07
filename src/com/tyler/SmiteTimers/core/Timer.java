@@ -44,7 +44,6 @@ public class Timer {
     }
 
     public void alertListners() {
-        System.out.println("Alerting listeners");
         for(TimeUpdatedListener listener: this.timeUpdatedListeners) {
             listener.timeUpdated(this.time);
         }

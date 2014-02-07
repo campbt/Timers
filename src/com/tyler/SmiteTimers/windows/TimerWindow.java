@@ -4,6 +4,8 @@ import java.awt.Container;
 import java.awt.Dimension;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.util.LinkedList;
+import java.util.List;
 import java.util.Scanner;
 
 import javax.swing.BoxLayout;
@@ -23,25 +25,32 @@ import com.tyler.SmiteTimers.panels.TimerPanel;
 
 public class TimerWindow extends JFrame implements NativeKeyListener, WindowListener  {
 
-    public static final int FRAME_WIDTH = 200;
+    private List<TimerPanel> timerPanels = new LinkedList<TimerPanel>();
 
     public TimerWindow() {
+        // Test Data
+        this.timerPanels.add(new TimerPanel(100000,"Gold Fury",null));
+        this.timerPanels.add(new TimerPanel(100000,"Fire Giant",null));
+        this.timerPanels.add(new TimerPanel(100000,"Blue Buff",null));
+
+        // Initial Parameters
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-        this.setTitle("JNativeHook test");
+        this.setTitle("Smite Timers");
         this.addWindowListener(this);
-
         this.getContentPane().setLayout(new BoxLayout(getContentPane(), BoxLayout.PAGE_AXIS));
 
-        // Test
-        this.add(new TimerPanel(100000,"Gold Fury",null));
-        this.add(new TimerPanel(100000,"Fire Giant",null));
-        this.add(new TimerPanel(100000,"Blue Buff",null));
+        int height = 0;
+        int width = 0;
+        for(TimerPanel panel: this.timerPanels) {
+            this.add(panel);
+            height += panel.getFrameHeight();
+            width = Math.max(width, panel.getFrameWidth());
+        }
 
-        //this.setSize(300, 300);
         this.setBounds(10,10,300,300);
-        this.setPreferredSize(new Dimension(FRAME_WIDTH,300));
-        this.setMinimumSize(new Dimension(FRAME_WIDTH,300));
+        this.setPreferredSize(new Dimension(width,height));
+        this.setMinimumSize(new Dimension(width,height));
+        this.setMaximumSize(new Dimension(width,height));
         this.pack();
         this.setVisible(true);
     }
