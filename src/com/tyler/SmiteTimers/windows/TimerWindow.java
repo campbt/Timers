@@ -3,6 +3,8 @@ package com.tyler.SmiteTimers.windows;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.util.HashMap;
@@ -28,6 +30,10 @@ public class TimerWindow extends JFrame implements NativeKeyListener, WindowList
     private List<Timer> timers = new LinkedList<Timer>();
     private Map<Integer, Timer> keysMapper = new HashMap<Integer, Timer>();
 
+    // Mouse coordinates, used for dragging
+    private int posX;
+    private int posY;
+
     public TimerWindow() {
         List<TimerPanel> timerPanels = loadData();
 
@@ -35,8 +41,33 @@ public class TimerWindow extends JFrame implements NativeKeyListener, WindowList
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setTitle("Smite Timers");
         this.addWindowListener(this);
-        this.setBackground(Color.WHITE);
+        //this.setBackground(Color.WHITE);
+        this.getRootPane().setOpaque(false);
+        this.getContentPane().setBackground(new Color(0,0,0,.1f));
+        this.setUndecorated(true);
+        this.setBackground(new Color(0,0,0,0f));
         this.getContentPane().setLayout(new GridLayout(5,2));
+
+        //this.setOpacity(0.75f);
+
+        // Set up dragging
+        this.addMouseListener(new MouseAdapter()
+        {
+           public void mousePressed(MouseEvent e)
+           {
+              TimerWindow.this.posX=e.getX();
+              TimerWindow.this.posY=e.getY();
+           }
+        });
+
+        this.addMouseMotionListener(new MouseAdapter()
+        {
+             public void mouseDragged(MouseEvent evt)
+             {
+                //sets frame position when mouse dragged			
+                setLocation (evt.getXOnScreen()-posX,evt.getYOnScreen()-posY);
+             }
+        });
 
         int height = 0;
         int width = 0;

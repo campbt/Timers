@@ -45,8 +45,12 @@ public class TimerPanel extends JPanel implements Timer.TimeUpdatedListener {
 
     public TimerPanel(Timer timer, String titleText, String imagePath) {
         this.timer = timer;
+
+        // Set parameters
         SpringLayout layout = new SpringLayout();
         this.setLayout(layout);
+        this.setBackground(new Color(0,0,0,0f));
+        this.setOpaque(false);
 
         // Add in an image icon
         boolean hasImage = false;
@@ -119,6 +123,14 @@ public class TimerPanel extends JPanel implements Timer.TimeUpdatedListener {
         long seconds = timeInMilli / 1000 % 60;
         long minutes = timeInMilli /  1000 / 60;
         this.timerText.setText(String.format("%2d:%02d", minutes, seconds));
+        if(timeInMilli < 120000) {
+            //System.out.println("Not visible");
+            //this.timerText.setVisible(false);
+            //this.timerText.setOpaque(false);
+            //this.timerText.getParent().();
+            //this.timerText.setText("");
+            //this.timerText.repaint();
+        }
     }
 
     public int getFrameWidth() {
