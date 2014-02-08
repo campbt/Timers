@@ -30,13 +30,13 @@ public class TimerPanel extends JPanel implements Timer.TimeUpdatedListener {
     private static final String TITLE_FONT_NAME = Font.SERIF;
     private static final int TITLE_FONT_STYLE = Font.PLAIN;
     private static final int TITLE_FONT_SIZE = 14;
-    private static final Color TITLE_COLOR = Color.BLACK;
+    private static final Color TITLE_COLOR = Color.WHITE;
 
     // Timer
     private static final String TIMER_FONT_NAME = Font.SANS_SERIF;
     private static final int TIMER_FONT_STYLE = Font.BOLD;
     private static final int TIMER_FONT_SIZE = 18;
-    private static final Color TIMER_COLOR = Color.BLACK;
+    private static final Color TIMER_COLOR = Color.WHITE;
     private static final int TIMER_PADDING_LEFT = 8;
     private static final int TIMER_PADDING_TOP = 4;
 

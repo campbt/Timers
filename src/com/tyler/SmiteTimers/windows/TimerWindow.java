@@ -28,6 +28,8 @@ import com.tyler.SmiteTimers.panels.TimerPanel;
 
 public class TimerWindow extends JFrame implements NativeKeyListener, WindowListener  {
 
+    private static final float TRANSPARENCY = 0.5f;
+
     private List<Timer> timers = new LinkedList<Timer>();
     private Map<Integer, Timer> keysMapper = new HashMap<Integer, Timer>();
 
@@ -45,7 +47,7 @@ public class TimerWindow extends JFrame implements NativeKeyListener, WindowList
 
         // For Transparency
         this.setUndecorated(true);
-        this.setBackground(new Color(0,0,0,.2f));
+        this.setBackground(new Color(0,0,0,TRANSPARENCY));
 
         // Set up dragging
         this.addMouseListener(new MouseAdapter()
