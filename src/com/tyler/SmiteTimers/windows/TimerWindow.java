@@ -3,8 +3,11 @@ package com.tyler.SmiteTimers.windows;
 import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.GridLayout;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.awt.geom.RoundRectangle2D;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -13,6 +16,7 @@ import java.util.Map;
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import org.jnativehook.GlobalScreen;
 import org.jnativehook.NativeHookException;
@@ -24,30 +28,63 @@ import com.tyler.SmiteTimers.panels.TimerPanel;
 
 public class TimerWindow extends JFrame implements NativeKeyListener, WindowListener  {
 
+    private static final float TRANSPARENCY = 0.5f;
+
     private List<Timer> timers = new LinkedList<Timer>();
     private Map<Integer, Timer> keysMapper = new HashMap<Integer, Timer>();
+
+    // Mouse coordinates, used for dragging
+    private int posX;
+    private int posY;
 
     public TimerWindow() {
         List<TimerPanel> timerPanels = loadData();
 
         // Initial Parameters
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setTitle("Smite Timers");
         this.addWindowListener(this);
-        this.setBackground(Color.WHITE);
-        this.getContentPane().setLayout(new GridLayout(4,2));
 
+        // For Transparency
+        this.setUndecorated(true);
+        this.setBackground(new Color(0,0,0,TRANSPARENCY));
+
+        // Always on top
+        this.setAlwaysOnTop( true );
+        this.setLocationByPlatform( true );
+
+        // Set up dragging
+        this.addMouseListener(new MouseAdapter()
+        {
+           public void mousePressed(MouseEvent e)
+           {
+              TimerWindow.this.posX=e.getX();
+              TimerWindow.this.posY=e.getY();
+           }
+        });
+        this.addMouseMotionListener(new MouseAdapter()
+        {
+             public void mouseDragged(MouseEvent evt)
+             {
+                //sets frame position when mouse dragged			
+                setLocation (evt.getXOnScreen()-posX,evt.getYOnScreen()-posY);
+             }
+        });
+
+        int numCols = 1;
+        int numRows = timerPanels.size() / numCols + timerPanels.size() % numCols;
+        this.getContentPane().setLayout(new GridLayout(numRows,numCols));
         int height = 0;
         int width = 0;
         for(TimerPanel panel: timerPanels) {
             this.add(panel);
-            height += panel.getFrameHeight();
+            height = Math.max(height, panel.getFrameHeight());
             width = Math.max(width, panel.getFrameWidth());
         }
-        width = width * 2 + 5;
-        height = height / 2;
+        width = width * numCols + 5;
+        height = height * numRows + 5;
 
-        this.setBounds(10,10,300,300);
+        this.setBounds(0,0,width,height);
+        this.setShape(new RoundRectangle2D.Double(0, 0, width, height, 50, 50));
         this.setPreferredSize(new Dimension(width,height));
         this.setMinimumSize(new Dimension(width,height));
         this.setMaximumSize(new Dimension(width,height));
@@ -66,23 +103,33 @@ public class TimerWindow extends JFrame implements NativeKeyListener, WindowList
         this.keysMapper.put(NativeKeyEvent.VK_P, this.timers.get(2));
 
         List<TimerPanel> timerPanels = new LinkedList<TimerPanel>();
-        timerPanels.add(constructTimerPanel(300000, "Gold Fury", null, NativeKeyEvent.VK_7));
-        timerPanels.add(constructTimerPanel(300000, "Fire Giant", null, NativeKeyEvent.VK_8));
-        timerPanels.add(constructTimerPanel(120000, "Left Furies", null, NativeKeyEvent.VK_U));
-        timerPanels.add(constructTimerPanel(120000, "Right Furies", null, NativeKeyEvent.VK_I));
-        timerPanels.add(constructTimerPanel(240000, "Left Blue", null, NativeKeyEvent.VK_J));
-        timerPanels.add(constructTimerPanel(240000, "Right Blue", null, NativeKeyEvent.VK_K));
-        timerPanels.add(constructTimerPanel(240000, "Speed Buff", null, NativeKeyEvent.VK_M));
-        timerPanels.add(constructTimerPanel(240000, "Damage Buff", null, NativeKeyEvent.VK_COMMA));
+        //timerPanels.add(constructTimerPanel(300000, "Gold Fury", "/com/tyler/SmiteTimers/images/icon_goldfury.png", NativeKeyEvent.VK_7));
+        //timerPanels.add(constructTimerPanel(300000, "Fire Giant", "/com/tyler/SmiteTimers/images/icon_firegiant.png", NativeKeyEvent.VK_8));
+        timerPanels.add(constructTimerPanel(120000, "Left Furies", "/com/tyler/SmiteTimers/images/icon_furies.png", NativeKeyEvent.VK_5));
+        timerPanels.add(constructTimerPanel(120000, "Right Furies", "/com/tyler/SmiteTimers/images/icon_furies.png", NativeKeyEvent.VK_6));
+        //timerPanels.add(constructTimerPanel(240000, "Left Blue", "/com/tyler/SmiteTimers/images/icon_buff_blue.png", NativeKeyEvent.VK_J));
+        //timerPanels.add(constructTimerPanel(240000, "Right Blue", "/com/tyler/SmiteTimers/images/icon_buff.png", NativeKeyEvent.VK_K));
+        timerPanels.add(constructTimerPanel(240000, "Speed Buff", "/com/tyler/SmiteTimers/images/icon_buff_orange.png", NativeKeyEvent.VK_7));
+        timerPanels.add(constructTimerPanel(240000, "Damage Buff", "/com/tyler/SmiteTimers/images/icon_buff_red.png", NativeKeyEvent.VK_8));
+        timerPanels.add(constructTimerPanel(240000, "Enemy Speed Buff", "/com/tyler/SmiteTimers/images/icon_buff_orange.png", NativeKeyEvent.VK_9));
+        timerPanels.add(constructTimerPanel(240000, "Enemy Damage Buff", "/com/tyler/SmiteTimers/images/icon_buff_red.png", NativeKeyEvent.VK_0));
 
         return timerPanels;
     }
 
     private TimerPanel constructTimerPanel(long time, String title, String imagePath, int key) {
-        Timer timer = new Timer(time);
-        this.timers.add(timer);
-        this.keysMapper.put(key, timer);
-        return new TimerPanel(timer, title, imagePath);
+        if(time > 0) {
+            Timer timer = new Timer(time);
+            this.timers.add(timer);
+            this.keysMapper.put(key, timer);
+            TimerPanel panel = new TimerPanel(timer, title, imagePath);
+            panel.addColorAlert(time, Color.BLUE);
+            panel.addColorAlert(time - 1000, Color.WHITE);
+            panel.addColorAlert(20000, Color.RED);
+            return panel;
+        } else {
+            return new TimerPanel(null, "Test", null);
+        }
     }
 
     public void windowOpened(WindowEvent e) {
