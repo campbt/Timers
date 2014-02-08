@@ -49,6 +49,10 @@ public class TimerWindow extends JFrame implements NativeKeyListener, WindowList
         this.setUndecorated(true);
         this.setBackground(new Color(0,0,0,TRANSPARENCY));
 
+        // Always on top
+        this.setAlwaysOnTop( true );
+        this.setLocationByPlatform( true );
+
         // Set up dragging
         this.addMouseListener(new MouseAdapter()
         {
