@@ -34,7 +34,7 @@ public class TimerWindow extends JFrame implements NativeKeyListener, WindowList
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.setTitle("Smite Timers");
         this.addWindowListener(this);
-        this.setBackground(new Color(0f,0f,0f));
+        this.setBackground(Color.WHITE);
         this.getContentPane().setLayout(new GridLayout(4,2));
 
         int height = 0;

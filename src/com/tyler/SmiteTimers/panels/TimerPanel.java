@@ -21,14 +21,13 @@ public class TimerPanel extends JPanel implements Timer.TimeUpdatedListener {
     public TimerPanel(Timer timer, String titleText, String imagePath) {
 
         timer.addTimeUpdatedListener(this);
-        timer.start();
 
         SpringLayout layout = new SpringLayout();
         this.setLayout(layout);
 
         // Create the Title layout
         this.title = new JLabel(titleText);
-        this.title.setForeground(Color.WHITE);
+        this.title.setForeground(Color.BLACK);
         this.add(this.title);
         layout.putConstraint(SpringLayout.WEST, this.title, 5, SpringLayout.WEST, this);
         layout.putConstraint(SpringLayout.NORTH, this.title, 5, SpringLayout.NORTH, this);
@@ -60,6 +59,11 @@ public class TimerPanel extends JPanel implements Timer.TimeUpdatedListener {
         long seconds = timeInMilli / 1000 % 60;
         long minutes = timeInMilli /  1000 / 60;
         this.timerText.setText(String.format("%02d:%02d", minutes, seconds));
+        if(minutes < 1 && seconds < 20) {
+            this.timerText.setForeground(Color.RED);
+        } else {
+            this.timerText.setForeground(Color.BLACK);
+        }
     }
 
     public int getFrameWidth() {

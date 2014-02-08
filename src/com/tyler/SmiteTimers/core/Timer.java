@@ -34,7 +34,6 @@ public class Timer {
      * Starts timer if it is stopped and resets timer if it is running
      */
     public void toggle() {
-        System.out.println("Toggled: " + timerLength);
         if(time == timerLength) {
             this.start();
         } else {
