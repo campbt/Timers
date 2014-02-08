@@ -2,6 +2,7 @@ package com.tyler.SmiteTimers.panels;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
@@ -17,7 +18,24 @@ import com.tyler.SmiteTimers.core.Timer;
 
 public class TimerPanel extends JPanel implements Timer.TimeUpdatedListener {
 
+    // Constants
+    private static final int PADDING = 4;
+
+    // Icon
     private static final int ICON_SIZE = 30;
+
+    // Title
+    private static final String TITLE_FONT_NAME = Font.SERIF;
+    private static final int TITLE_FONT_STYLE = Font.PLAIN;
+    private static final int TITLE_FONT_SIZE = 14;
+    private static final Color TITLE_COLOR = Color.BLACK;
+
+    // Timer
+    private static final String TIMER_FONT_NAME = Font.SANS_SERIF;
+    private static final int TIMER_FONT_STYLE = Font.BOLD;
+    private static final int TIMER_FONT_SIZE = 18;
+    private static final Color TIMER_COLOR = Color.BLACK;
+    private static final int TIMER_PADDING = 8;
 
     JLabel timerText;
     JLabel title;
@@ -26,38 +44,21 @@ public class TimerPanel extends JPanel implements Timer.TimeUpdatedListener {
         SpringLayout layout = new SpringLayout();
         this.setLayout(layout);
 
-        // Create the Title layout
-        this.title = new JLabel(titleText);
-        this.title.setForeground(Color.BLACK);
-        this.add(this.title);
-        layout.putConstraint(SpringLayout.WEST, this.title, 5, SpringLayout.WEST, this);
-        layout.putConstraint(SpringLayout.NORTH, this.title, 5, SpringLayout.NORTH, this);
-
-        if(timer != null) {
-            // Create timer layout
-            timer.addTimeUpdatedListener(this);
-            this.timerText = new JLabel("00:00");
-            this.timerText.setForeground(Color.WHITE);
-            this.add(this.timerText);
-            layout.putConstraint(SpringLayout.NORTH, this.timerText, 5, SpringLayout.SOUTH, title); // Above timer
-            layout.putConstraint(SpringLayout.WEST, this.timerText, 5, SpringLayout.WEST, this);        
-
-            timeUpdated(timer.getTime());
-        }
-
         // Add in an image icon
+        boolean hasImage = false;
+        JLabel picLabel = null;
         if(imagePath != null) {
             try {
-                System.out.println("Trying to read: " + imagePath);
                 if(getClass().getResource(imagePath) != null) {
                     BufferedImage icon = ImageIO.read(getClass().getResource(imagePath));
                     Image scaled = icon.getScaledInstance(ICON_SIZE, ICON_SIZE, java.awt.Image.SCALE_SMOOTH);
-                    JLabel picLabel = new JLabel(new ImageIcon(scaled));
+                    picLabel = new JLabel(new ImageIcon(scaled));
                     this.add(picLabel);
                     this.setMaximumSize(new Dimension(ICON_SIZE, ICON_SIZE));
-                    //layout.putConstraint(SpringLayout.WEST, picLabel, 5, SpringLayout.EAST, title); // Above timer
-                    layout.putConstraint(SpringLayout.NORTH, picLabel, 5, SpringLayout.NORTH, this);        
-                    layout.putConstraint(SpringLayout.EAST, picLabel, -5, SpringLayout.EAST, this);        
+                    //layout.putConstraint(SpringLayout.WEST, picLabel, PADDING, SpringLayout.EAST, title); // Above timer
+                    layout.putConstraint(SpringLayout.NORTH, picLabel, PADDING, SpringLayout.NORTH, this);        
+                    layout.putConstraint(SpringLayout.WEST, picLabel, PADDING, SpringLayout.WEST, this);        
+                    hasImage = true;
                 } else {
                     System.out.println("WARNING: Image Not Found: " + imagePath);
                 }
@@ -67,13 +68,43 @@ public class TimerPanel extends JPanel implements Timer.TimeUpdatedListener {
             }
         }
 
+        // Create the Title layout
+        this.title = new JLabel(titleText);
+        this.title.setForeground(TITLE_COLOR);
+        this.title.setFont(new Font(TITLE_FONT_NAME, TITLE_FONT_STYLE, TITLE_FONT_SIZE));
+        this.add(this.title);
+        if(hasImage) {
+            layout.putConstraint(SpringLayout.WEST, this.title, PADDING, SpringLayout.EAST, picLabel);
+        } else {
+            layout.putConstraint(SpringLayout.WEST, this.title, PADDING, SpringLayout.WEST, this);
+        }
+        layout.putConstraint(SpringLayout.NORTH, this.title, PADDING, SpringLayout.NORTH, this);
+
+        if(timer != null) {
+            // Create timer layout
+            timer.addTimeUpdatedListener(this);
+            this.timerText = new JLabel("00:00");
+            this.timerText.setForeground(TIMER_COLOR);
+            this.timerText.setFont(new Font(TIMER_FONT_NAME, TIMER_FONT_STYLE, TIMER_FONT_SIZE));
+            this.add(this.timerText);
+            layout.putConstraint(SpringLayout.NORTH, this.timerText, PADDING, SpringLayout.SOUTH, title); // Above timer
+            layout.putConstraint(SpringLayout.SOUTH, this.timerText, -1 * PADDING, SpringLayout.SOUTH, this); // Above timer
+            if(hasImage) {
+                layout.putConstraint(SpringLayout.WEST, this.timerText, TIMER_PADDING, SpringLayout.EAST, picLabel);        
+            } else {
+                layout.putConstraint(SpringLayout.WEST, this.timerText, TIMER_PADDING, SpringLayout.WEST, this);        
+            }
+
+            timeUpdated(timer.getTime());
+        }
+
     }
 
     @Override
     public void timeUpdated(long timeInMilli) {
         long seconds = timeInMilli / 1000 % 60;
         long minutes = timeInMilli /  1000 / 60;
-        this.timerText.setText(String.format("%02d:%02d", minutes, seconds));
+        this.timerText.setText(String.format("%2d:%02d", minutes, seconds));
         if(minutes < 1 && seconds < 20) {
             this.timerText.setForeground(Color.RED);
         } else {
@@ -82,11 +113,11 @@ public class TimerPanel extends JPanel implements Timer.TimeUpdatedListener {
     }
 
     public int getFrameWidth() {
-        return 100;
+        return 120;
     }
 
     public int getFrameHeight() {
-        return 50;
+        return 60;
     }
 
 }
