@@ -21,7 +21,7 @@ import com.tyler.SmiteTimers.core.Timer;
 public class TimerPanel extends JPanel implements Timer.TimeUpdatedListener {
 
     // Constants
-    private static final int PADDING = 4;
+    private static final int PADDING = 10;
 
     // Icon
     private static final int ICON_SIZE = 30;
@@ -37,7 +37,8 @@ public class TimerPanel extends JPanel implements Timer.TimeUpdatedListener {
     private static final int TIMER_FONT_STYLE = Font.BOLD;
     private static final int TIMER_FONT_SIZE = 18;
     private static final Color TIMER_COLOR = Color.BLACK;
-    private static final int TIMER_PADDING = 8;
+    private static final int TIMER_PADDING_LEFT = 8;
+    private static final int TIMER_PADDING_TOP = 4;
 
     Timer timer;
     JLabel timerText;
@@ -95,12 +96,12 @@ public class TimerPanel extends JPanel implements Timer.TimeUpdatedListener {
             this.timerText.setForeground(TIMER_COLOR);
             this.timerText.setFont(new Font(TIMER_FONT_NAME, TIMER_FONT_STYLE, TIMER_FONT_SIZE));
             this.add(this.timerText);
-            layout.putConstraint(SpringLayout.NORTH, this.timerText, PADDING, SpringLayout.SOUTH, title); // Above timer
-            layout.putConstraint(SpringLayout.SOUTH, this.timerText, -1 * PADDING, SpringLayout.SOUTH, this); // Above timer
+            layout.putConstraint(SpringLayout.NORTH, this.timerText, TIMER_PADDING_TOP, SpringLayout.SOUTH, title); // Above timer
+            layout.putConstraint(SpringLayout.SOUTH, this.timerText, -1 * TIMER_PADDING_TOP, SpringLayout.SOUTH, this); // Above timer
             if(hasImage) {
-                layout.putConstraint(SpringLayout.WEST, this.timerText, TIMER_PADDING, SpringLayout.EAST, picLabel);        
+                layout.putConstraint(SpringLayout.WEST, this.timerText, TIMER_PADDING_LEFT, SpringLayout.EAST, picLabel);        
             } else {
-                layout.putConstraint(SpringLayout.WEST, this.timerText, TIMER_PADDING, SpringLayout.WEST, this);        
+                layout.putConstraint(SpringLayout.WEST, this.timerText, TIMER_PADDING_LEFT, SpringLayout.WEST, this);        
             }
 
             timeUpdated(timer.getTime());

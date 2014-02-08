@@ -7,6 +7,7 @@ import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
+import java.awt.geom.RoundRectangle2D;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -39,16 +40,12 @@ public class TimerWindow extends JFrame implements NativeKeyListener, WindowList
 
         // Initial Parameters
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        this.setTitle("Smite Timers");
         this.addWindowListener(this);
-        //this.setBackground(Color.WHITE);
-        this.getRootPane().setOpaque(false);
-        this.getContentPane().setBackground(new Color(0,0,0,.1f));
-        this.setUndecorated(true);
-        this.setBackground(new Color(0,0,0,0f));
-        this.getContentPane().setLayout(new GridLayout(5,2));
+        this.getContentPane().setLayout(new GridLayout(4,2));
 
-        //this.setOpacity(0.75f);
+        // For Transparency
+        this.setUndecorated(true);
+        this.setBackground(new Color(0,0,0,.2f));
 
         // Set up dragging
         this.addMouseListener(new MouseAdapter()
@@ -59,7 +56,6 @@ public class TimerWindow extends JFrame implements NativeKeyListener, WindowList
               TimerWindow.this.posY=e.getY();
            }
         });
-
         this.addMouseMotionListener(new MouseAdapter()
         {
              public void mouseDragged(MouseEvent evt)
@@ -79,7 +75,8 @@ public class TimerWindow extends JFrame implements NativeKeyListener, WindowList
         width = width * 2 + 5;
         height = height / 2;
 
-        this.setBounds(10,10,300,300);
+        this.setBounds(0,0,width,height);
+        this.setShape(new RoundRectangle2D.Double(0, 0, width, height, 50, 50));
         this.setPreferredSize(new Dimension(width,height));
         this.setMinimumSize(new Dimension(width,height));
         this.setMaximumSize(new Dimension(width,height));
