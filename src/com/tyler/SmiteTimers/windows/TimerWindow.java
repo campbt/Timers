@@ -86,7 +86,7 @@ public class TimerWindow extends JFrame implements NativeKeyListener, WindowList
     }
 
     public void windowOpened(WindowEvent e) {
-            //Initialze native hook.
+            //Initialize native hook.
             try {
                     GlobalScreen.registerNativeHook();
             }
