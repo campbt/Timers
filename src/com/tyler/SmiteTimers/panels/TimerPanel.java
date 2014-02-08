@@ -2,6 +2,7 @@ package com.tyler.SmiteTimers.panels;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Image;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -16,7 +17,7 @@ import com.tyler.SmiteTimers.core.Timer;
 
 public class TimerPanel extends JPanel implements Timer.TimeUpdatedListener {
 
-    private static final int ICON_SIZE = 20;
+    private static final int ICON_SIZE = 30;
 
     JLabel timerText;
     JLabel title;
@@ -48,14 +49,20 @@ public class TimerPanel extends JPanel implements Timer.TimeUpdatedListener {
         if(imagePath != null) {
             try {
                 System.out.println("Trying to read: " + imagePath);
-                BufferedImage icon = ImageIO.read(getClass().getResource(imagePath));
-                JLabel picLabel = new JLabel(new ImageIcon(icon));
-                this.add(picLabel);
-                this.setMaximumSize(new Dimension(ICON_SIZE, ICON_SIZE));
-                layout.putConstraint(SpringLayout.WEST, picLabel, 5, SpringLayout.EAST, title); // Above timer
-                layout.putConstraint(SpringLayout.EAST, this.timerText, 5, SpringLayout.EAST, this);        
+                if(getClass().getResource(imagePath) != null) {
+                    BufferedImage icon = ImageIO.read(getClass().getResource(imagePath));
+                    Image scaled = icon.getScaledInstance(ICON_SIZE, ICON_SIZE, java.awt.Image.SCALE_SMOOTH);
+                    JLabel picLabel = new JLabel(new ImageIcon(scaled));
+                    this.add(picLabel);
+                    this.setMaximumSize(new Dimension(ICON_SIZE, ICON_SIZE));
+                    //layout.putConstraint(SpringLayout.WEST, picLabel, 5, SpringLayout.EAST, title); // Above timer
+                    layout.putConstraint(SpringLayout.NORTH, picLabel, 5, SpringLayout.NORTH, this);        
+                    layout.putConstraint(SpringLayout.EAST, picLabel, -5, SpringLayout.EAST, this);        
+                } else {
+                    System.out.println("WARNING: Image Not Found: " + imagePath);
+                }
 
-            } catch (IOException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
             }
         }

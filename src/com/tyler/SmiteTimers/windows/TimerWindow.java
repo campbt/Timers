@@ -68,15 +68,13 @@ public class TimerWindow extends JFrame implements NativeKeyListener, WindowList
 
         List<TimerPanel> timerPanels = new LinkedList<TimerPanel>();
         timerPanels.add(constructTimerPanel(300000, "Gold Fury", "/com/tyler/SmiteTimers/images/icon_goldfury.png", NativeKeyEvent.VK_7));
-        timerPanels.add(constructTimerPanel(300000, "Fire Giant", null, NativeKeyEvent.VK_8));
-        timerPanels.add(constructTimerPanel(0, "Fire Giant", null, NativeKeyEvent.VK_8));
-        timerPanels.add(constructTimerPanel(0, "Fire Giant", null, NativeKeyEvent.VK_8));
-        //timerPanels.add(constructTimerPanel(120000, "Left Furies", null, NativeKeyEvent.VK_U));
-        timerPanels.add(constructTimerPanel(120000, "Right Furies", null, NativeKeyEvent.VK_I));
-        timerPanels.add(constructTimerPanel(240000, "Left Blue", null, NativeKeyEvent.VK_J));
-        timerPanels.add(constructTimerPanel(240000, "Right Blue", null, NativeKeyEvent.VK_K));
-        timerPanels.add(constructTimerPanel(240000, "Speed Buff", null, NativeKeyEvent.VK_M));
-        timerPanels.add(constructTimerPanel(240000, "Damage Buff", null, NativeKeyEvent.VK_COMMA));
+        timerPanels.add(constructTimerPanel(300000, "Fire Giant", "/com/tyler/SmiteTimers/images/icon_firegiant.png", NativeKeyEvent.VK_8));
+        timerPanels.add(constructTimerPanel(120000, "Left Furies", "/com/tyler/SmiteTimers/images/icon_furies.png", NativeKeyEvent.VK_U));
+        timerPanels.add(constructTimerPanel(120000, "Right Furies", "/com/tyler/SmiteTimers/images/icon_furies.png", NativeKeyEvent.VK_I));
+        timerPanels.add(constructTimerPanel(240000, "Left Blue", "/com/tyler/SmiteTimers/images/icon_buff_blue.png", NativeKeyEvent.VK_J));
+        timerPanels.add(constructTimerPanel(240000, "Right Blue", "/com/tyler/SmiteTimers/images/icon_buff.png", NativeKeyEvent.VK_K));
+        timerPanels.add(constructTimerPanel(240000, "Speed Buff", "/com/tyler/SmiteTimers/images/icon_buff_orange.png", NativeKeyEvent.VK_M));
+        timerPanels.add(constructTimerPanel(240000, "Damage Buff", "/com/tyler/SmiteTimers/images/icon_buff_red.png", NativeKeyEvent.VK_COMMA));
 
         return timerPanels;
     }
