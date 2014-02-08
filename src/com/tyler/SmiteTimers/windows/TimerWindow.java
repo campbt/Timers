@@ -84,7 +84,10 @@ public class TimerWindow extends JFrame implements NativeKeyListener, WindowList
             Timer timer = new Timer(time);
             this.timers.add(timer);
             this.keysMapper.put(key, timer);
-            return new TimerPanel(timer, title, imagePath);
+            TimerPanel panel = new TimerPanel(timer, title, imagePath);
+            panel.addColorAlert(time, Color.BLUE);
+            panel.addColorAlert(time - 1000, Color.BLACK);
+            return panel;
         } else {
             return new TimerPanel(null, "Test", null);
         }

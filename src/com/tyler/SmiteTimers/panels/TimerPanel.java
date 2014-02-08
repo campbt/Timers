@@ -14,6 +14,8 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SpringLayout;
 
+import com.tyler.SmiteTimers.core.Alert;
+import com.tyler.SmiteTimers.core.Alert.AlertTriggeredListener;
 import com.tyler.SmiteTimers.core.Timer;
 
 public class TimerPanel extends JPanel implements Timer.TimeUpdatedListener {
@@ -37,10 +39,12 @@ public class TimerPanel extends JPanel implements Timer.TimeUpdatedListener {
     private static final Color TIMER_COLOR = Color.BLACK;
     private static final int TIMER_PADDING = 8;
 
+    Timer timer;
     JLabel timerText;
     JLabel title;
 
     public TimerPanel(Timer timer, String titleText, String imagePath) {
+        this.timer = timer;
         SpringLayout layout = new SpringLayout();
         this.setLayout(layout);
 
@@ -80,9 +84,9 @@ public class TimerPanel extends JPanel implements Timer.TimeUpdatedListener {
         }
         layout.putConstraint(SpringLayout.NORTH, this.title, PADDING, SpringLayout.NORTH, this);
 
-        if(timer != null) {
+        if(this.timer != null) {
             // Create timer layout
-            timer.addTimeUpdatedListener(this);
+            this.timer.addTimeUpdatedListener(this);
             this.timerText = new JLabel("00:00");
             this.timerText.setForeground(TIMER_COLOR);
             this.timerText.setFont(new Font(TIMER_FONT_NAME, TIMER_FONT_STYLE, TIMER_FONT_SIZE));
@@ -100,16 +104,21 @@ public class TimerPanel extends JPanel implements Timer.TimeUpdatedListener {
 
     }
 
+    public void addColorAlert(long timeToTrigger, final Color color) {
+        AlertTriggeredListener listener = new AlertTriggeredListener() {
+            @Override
+            public void alertTriggered(Alert alert) {
+                TimerPanel.this.timerText.setForeground(color);
+            }
+        };
+        this.timer.addAlert(new Alert(timeToTrigger, listener));
+    }
+
     @Override
     public void timeUpdated(long timeInMilli) {
         long seconds = timeInMilli / 1000 % 60;
         long minutes = timeInMilli /  1000 / 60;
         this.timerText.setText(String.format("%2d:%02d", minutes, seconds));
-        if(minutes < 1 && seconds < 20) {
-            this.timerText.setForeground(Color.RED);
-        } else {
-            this.timerText.setForeground(Color.BLACK);
-        }
     }
 
     public int getFrameWidth() {
