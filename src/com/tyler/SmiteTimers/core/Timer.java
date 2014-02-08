@@ -55,6 +55,7 @@ public class Timer {
 
     public void addAlert(Alert alert) {
         this.addTimeUpdatedListener(alert);
+        alert.timeUpdated(this.time);
     }
 
     public void alertListners() {
