@@ -134,6 +134,10 @@ public class TimerPanel extends JPanel implements Timer.TimeUpdatedListener {
         }
     }
 
+    public Timer getTimer() {
+        return this.timer;
+    }
+
     public int getFrameWidth() {
         return 120;
     }
