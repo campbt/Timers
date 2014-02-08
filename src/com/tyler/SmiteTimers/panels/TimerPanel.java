@@ -1,6 +1,7 @@
 package com.tyler.SmiteTimers.panels;
 
 import java.awt.Color;
+import java.awt.Dimension;
 import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
@@ -15,13 +16,12 @@ import com.tyler.SmiteTimers.core.Timer;
 
 public class TimerPanel extends JPanel implements Timer.TimeUpdatedListener {
 
+    private static final int ICON_SIZE = 20;
+
     JLabel timerText;
     JLabel title;
 
     public TimerPanel(Timer timer, String titleText, String imagePath) {
-
-        timer.addTimeUpdatedListener(this);
-
         SpringLayout layout = new SpringLayout();
         this.setLayout(layout);
 
@@ -32,26 +32,34 @@ public class TimerPanel extends JPanel implements Timer.TimeUpdatedListener {
         layout.putConstraint(SpringLayout.WEST, this.title, 5, SpringLayout.WEST, this);
         layout.putConstraint(SpringLayout.NORTH, this.title, 5, SpringLayout.NORTH, this);
 
-        // Create timer layout
-        this.timerText = new JLabel("00:00");
-        this.timerText.setForeground(Color.WHITE);
-        this.add(this.timerText);
-        layout.putConstraint(SpringLayout.NORTH, this.timerText, 5, SpringLayout.SOUTH, title); // Above timer
-        layout.putConstraint(SpringLayout.WEST, this.timerText, 5, SpringLayout.WEST, this);        
+        if(timer != null) {
+            // Create timer layout
+            timer.addTimeUpdatedListener(this);
+            this.timerText = new JLabel("00:00");
+            this.timerText.setForeground(Color.WHITE);
+            this.add(this.timerText);
+            layout.putConstraint(SpringLayout.NORTH, this.timerText, 5, SpringLayout.SOUTH, title); // Above timer
+            layout.putConstraint(SpringLayout.WEST, this.timerText, 5, SpringLayout.WEST, this);        
+
+            timeUpdated(timer.getTime());
+        }
 
         // Add in an image icon
         if(imagePath != null) {
             try {
-                BufferedImage myPicture = ImageIO.read(new File("path-to-file"));
-                JLabel picLabel = new JLabel(new ImageIcon(myPicture));
+                System.out.println("Trying to read: " + imagePath);
+                BufferedImage icon = ImageIO.read(getClass().getResource(imagePath));
+                JLabel picLabel = new JLabel(new ImageIcon(icon));
                 this.add(picLabel);
+                this.setMaximumSize(new Dimension(ICON_SIZE, ICON_SIZE));
+                layout.putConstraint(SpringLayout.WEST, picLabel, 5, SpringLayout.EAST, title); // Above timer
+                layout.putConstraint(SpringLayout.EAST, this.timerText, 5, SpringLayout.EAST, this);        
 
             } catch (IOException e) {
                 e.printStackTrace();
             }
         }
 
-        timeUpdated(timer.getTime());
     }
 
     @Override

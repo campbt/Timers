@@ -13,6 +13,7 @@ import java.util.Map;
 import javax.swing.BoxLayout;
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import javax.swing.JPanel;
 import javax.swing.SwingUtilities;
 import org.jnativehook.GlobalScreen;
 import org.jnativehook.NativeHookException;
@@ -35,7 +36,7 @@ public class TimerWindow extends JFrame implements NativeKeyListener, WindowList
         this.setTitle("Smite Timers");
         this.addWindowListener(this);
         this.setBackground(Color.WHITE);
-        this.getContentPane().setLayout(new GridLayout(4,2));
+        this.getContentPane().setLayout(new GridLayout(5,2));
 
         int height = 0;
         int width = 0;
@@ -66,9 +67,11 @@ public class TimerWindow extends JFrame implements NativeKeyListener, WindowList
         this.keysMapper.put(NativeKeyEvent.VK_P, this.timers.get(2));
 
         List<TimerPanel> timerPanels = new LinkedList<TimerPanel>();
-        timerPanels.add(constructTimerPanel(300000, "Gold Fury", null, NativeKeyEvent.VK_7));
+        timerPanels.add(constructTimerPanel(300000, "Gold Fury", "/com/tyler/SmiteTimers/images/icon_goldfury.png", NativeKeyEvent.VK_7));
         timerPanels.add(constructTimerPanel(300000, "Fire Giant", null, NativeKeyEvent.VK_8));
-        timerPanels.add(constructTimerPanel(120000, "Left Furies", null, NativeKeyEvent.VK_U));
+        timerPanels.add(constructTimerPanel(0, "Fire Giant", null, NativeKeyEvent.VK_8));
+        timerPanels.add(constructTimerPanel(0, "Fire Giant", null, NativeKeyEvent.VK_8));
+        //timerPanels.add(constructTimerPanel(120000, "Left Furies", null, NativeKeyEvent.VK_U));
         timerPanels.add(constructTimerPanel(120000, "Right Furies", null, NativeKeyEvent.VK_I));
         timerPanels.add(constructTimerPanel(240000, "Left Blue", null, NativeKeyEvent.VK_J));
         timerPanels.add(constructTimerPanel(240000, "Right Blue", null, NativeKeyEvent.VK_K));
@@ -79,10 +82,14 @@ public class TimerWindow extends JFrame implements NativeKeyListener, WindowList
     }
 
     private TimerPanel constructTimerPanel(long time, String title, String imagePath, int key) {
-        Timer timer = new Timer(time);
-        this.timers.add(timer);
-        this.keysMapper.put(key, timer);
-        return new TimerPanel(timer, title, imagePath);
+        if(time > 0) {
+            Timer timer = new Timer(time);
+            this.timers.add(timer);
+            this.keysMapper.put(key, timer);
+            return new TimerPanel(timer, title, imagePath);
+        } else {
+            return new TimerPanel(null, "Test", null);
+        }
     }
 
     public void windowOpened(WindowEvent e) {
