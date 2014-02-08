@@ -43,7 +43,6 @@ public class TimerWindow extends JFrame implements NativeKeyListener, WindowList
         // Initial Parameters
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         this.addWindowListener(this);
-        this.getContentPane().setLayout(new GridLayout(4,2));
 
         // For Transparency
         this.setUndecorated(true);
@@ -71,15 +70,18 @@ public class TimerWindow extends JFrame implements NativeKeyListener, WindowList
              }
         });
 
+        int numCols = 1;
+        int numRows = timerPanels.size() / numCols + timerPanels.size() % numCols;
+        this.getContentPane().setLayout(new GridLayout(numRows,numCols));
         int height = 0;
         int width = 0;
         for(TimerPanel panel: timerPanels) {
             this.add(panel);
-            height += panel.getFrameHeight();
+            height = Math.max(height, panel.getFrameHeight());
             width = Math.max(width, panel.getFrameWidth());
         }
-        width = width * 2 + 5;
-        height = height / 2;
+        width = width * numCols + 5;
+        height = height * numRows + 5;
 
         this.setBounds(0,0,width,height);
         this.setShape(new RoundRectangle2D.Double(0, 0, width, height, 50, 50));
@@ -101,14 +103,16 @@ public class TimerWindow extends JFrame implements NativeKeyListener, WindowList
         this.keysMapper.put(NativeKeyEvent.VK_P, this.timers.get(2));
 
         List<TimerPanel> timerPanels = new LinkedList<TimerPanel>();
-        timerPanels.add(constructTimerPanel(300000, "Gold Fury", "/com/tyler/SmiteTimers/images/icon_goldfury.png", NativeKeyEvent.VK_7));
-        timerPanels.add(constructTimerPanel(300000, "Fire Giant", "/com/tyler/SmiteTimers/images/icon_firegiant.png", NativeKeyEvent.VK_8));
-        timerPanels.add(constructTimerPanel(120000, "Left Furies", "/com/tyler/SmiteTimers/images/icon_furies.png", NativeKeyEvent.VK_U));
-        timerPanels.add(constructTimerPanel(120000, "Right Furies", "/com/tyler/SmiteTimers/images/icon_furies.png", NativeKeyEvent.VK_I));
-        timerPanels.add(constructTimerPanel(240000, "Left Blue", "/com/tyler/SmiteTimers/images/icon_buff_blue.png", NativeKeyEvent.VK_J));
-        timerPanels.add(constructTimerPanel(240000, "Right Blue", "/com/tyler/SmiteTimers/images/icon_buff.png", NativeKeyEvent.VK_K));
-        timerPanels.add(constructTimerPanel(240000, "Speed Buff", "/com/tyler/SmiteTimers/images/icon_buff_orange.png", NativeKeyEvent.VK_M));
-        timerPanels.add(constructTimerPanel(240000, "Damage Buff", "/com/tyler/SmiteTimers/images/icon_buff_red.png", NativeKeyEvent.VK_COMMA));
+        //timerPanels.add(constructTimerPanel(300000, "Gold Fury", "/com/tyler/SmiteTimers/images/icon_goldfury.png", NativeKeyEvent.VK_7));
+        //timerPanels.add(constructTimerPanel(300000, "Fire Giant", "/com/tyler/SmiteTimers/images/icon_firegiant.png", NativeKeyEvent.VK_8));
+        timerPanels.add(constructTimerPanel(120000, "Left Furies", "/com/tyler/SmiteTimers/images/icon_furies.png", NativeKeyEvent.VK_5));
+        timerPanels.add(constructTimerPanel(120000, "Right Furies", "/com/tyler/SmiteTimers/images/icon_furies.png", NativeKeyEvent.VK_6));
+        //timerPanels.add(constructTimerPanel(240000, "Left Blue", "/com/tyler/SmiteTimers/images/icon_buff_blue.png", NativeKeyEvent.VK_J));
+        //timerPanels.add(constructTimerPanel(240000, "Right Blue", "/com/tyler/SmiteTimers/images/icon_buff.png", NativeKeyEvent.VK_K));
+        timerPanels.add(constructTimerPanel(240000, "Speed Buff", "/com/tyler/SmiteTimers/images/icon_buff_orange.png", NativeKeyEvent.VK_7));
+        timerPanels.add(constructTimerPanel(240000, "Damage Buff", "/com/tyler/SmiteTimers/images/icon_buff_red.png", NativeKeyEvent.VK_8));
+        timerPanels.add(constructTimerPanel(240000, "Enemy Speed Buff", "/com/tyler/SmiteTimers/images/icon_buff_orange.png", NativeKeyEvent.VK_9));
+        timerPanels.add(constructTimerPanel(240000, "Enemy Damage Buff", "/com/tyler/SmiteTimers/images/icon_buff_red.png", NativeKeyEvent.VK_0));
 
         return timerPanels;
     }
@@ -120,7 +124,8 @@ public class TimerWindow extends JFrame implements NativeKeyListener, WindowList
             this.keysMapper.put(key, timer);
             TimerPanel panel = new TimerPanel(timer, title, imagePath);
             panel.addColorAlert(time, Color.BLUE);
-            panel.addColorAlert(time - 1000, Color.BLACK);
+            panel.addColorAlert(time - 1000, Color.WHITE);
+            panel.addColorAlert(20000, Color.RED);
             return panel;
         } else {
             return new TimerPanel(null, "Test", null);
