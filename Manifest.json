@@ -1,0 +1,32 @@
+{
+    "columns":2
+    "time":"seconds",
+    "timers":[
+        {
+            "type":"timer",
+            "title":"Gold Fury",
+            "duration":300,
+            "hotkey":"7",
+            "alerts": [
+                {
+                    "type":"color",
+                    "time":"20",
+                    "color":"red"
+                }
+            ]
+        },
+        {
+            "type":"timer",
+            "title":"Fire Giant",
+            "duration":300,
+            "hotkey":"8",
+            "alerts": [
+                {
+                    "type":"color",
+                    "time":"20",
+                    "color":"red"
+                }
+            ]
+        }
+    ]
+}
