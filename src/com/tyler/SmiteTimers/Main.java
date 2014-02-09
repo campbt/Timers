@@ -8,7 +8,7 @@ import com.tyler.SmiteTimers.windows.TimerWindow;
 public class Main {
 
     // Constants
-    private static final String MANFIEST_FILE = "../Manifest.json";
+    private static final String MANFIEST_FILE = "./Manifest.json";
 
 	public static void main(String[] args) {
 		//Schedule a job for the event-dispatching thread:
