@@ -43,6 +43,7 @@ public class TimerPanel extends JPanel implements Timer.TimeUpdatedListener {
     Timer timer;
     JLabel timerText;
     JLabel title;
+    private int hotkey;
 
     public TimerPanel(Timer timer, String titleText, String imagePath) {
         this.timer = timer;
@@ -58,20 +59,13 @@ public class TimerPanel extends JPanel implements Timer.TimeUpdatedListener {
         JLabel picLabel = null;
         if(imagePath != null) {
             try {
-                if(getClass().getResource(imagePath) != null) {
-                    BufferedImage icon = ImageIO.read(getClass().getResource(imagePath));
-                    Image scaled = icon.getScaledInstance(ICON_SIZE, ICON_SIZE, java.awt.Image.SCALE_SMOOTH);
-                    picLabel = new JLabel(new ImageIcon(scaled));
-                    this.add(picLabel);
-                    this.setMaximumSize(new Dimension(ICON_SIZE, ICON_SIZE));
-                    //layout.putConstraint(SpringLayout.WEST, picLabel, PADDING, SpringLayout.EAST, title); // Above timer
-                    layout.putConstraint(SpringLayout.NORTH, picLabel, PADDING, SpringLayout.NORTH, this);        
-                    layout.putConstraint(SpringLayout.WEST, picLabel, PADDING, SpringLayout.WEST, this);        
-                    hasImage = true;
-                } else {
-                    System.out.println("WARNING: Image Not Found: " + imagePath);
-                }
-
+                picLabel = new JLabel(new ImageIcon(convertIconString(imagePath)));
+                this.add(picLabel);
+                this.setMaximumSize(new Dimension(ICON_SIZE, ICON_SIZE));
+                //layout.putConstraint(SpringLayout.WEST, picLabel, PADDING, SpringLayout.EAST, title); // Above timer
+                layout.putConstraint(SpringLayout.NORTH, picLabel, PADDING, SpringLayout.NORTH, this);        
+                layout.putConstraint(SpringLayout.WEST, picLabel, PADDING, SpringLayout.WEST, this);        
+                hasImage = true;
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -134,12 +128,60 @@ public class TimerPanel extends JPanel implements Timer.TimeUpdatedListener {
         }
     }
 
+    public Image convertIconString(String icon) {
+        String imagePath = null;
+        if(icon == null) {
+            return null;
+        } else if(icon.equals("goldfury")) {
+            imagePath = "/com/tyler/SmiteTimers/images/icon_goldfury.png";
+        } else if(icon.equals("firegiant")) {
+            imagePath = "/com/tyler/SmiteTimers/images/icon_firegiant.png";
+        } else if(icon.equals("furies")) {
+            imagePath = "/com/tyler/SmiteTimers/images/icon_furies.png";
+        } else if(icon.equals("buff")) {
+            imagePath = "/com/tyler/SmiteTimers/images/icon_buff.png";
+        } else if(icon.equals("buff_red")) {
+            imagePath = "/com/tyler/SmiteTimers/images/icon_buff_red.png";
+        } else if(icon.equals("buff_blue")) {
+            imagePath = "/com/tyler/SmiteTimers/images/icon_buff_blue.png";
+        } else if(icon.equals("buff_orange")) {
+            imagePath = "/com/tyler/SmiteTimers/images/icon_buff_orange.png";
+        }
+        if(imagePath != null) {
+            try {
+                BufferedImage buffered = ImageIO.read(getClass().getResource(imagePath));
+                return buffered.getScaledInstance(TimerPanel.ICON_SIZE, TimerPanel.ICON_SIZE, java.awt.Image.SCALE_SMOOTH);
+            } catch (Exception e) {
+                System.out.println("Couldn't load resource: " + imagePath);
+                e.printStackTrace();
+            }
+        } else {
+            // String not known, try to look it up
+            // TODO: Look up resource on their comp
+            System.out.println("Unknown Image: " + icon);
+        }
+        return null;
+            
+    }
+
+    public Timer getTimer() {
+        return this.timer;
+    }
+
     public int getFrameWidth() {
         return 120;
     }
 
     public int getFrameHeight() {
         return 60;
+    }
+
+    public void setHotkey(int hotkey) {
+        this.hotkey = hotkey;
+    }
+
+    public int getHotkey() {
+        return this.hotkey;
     }
 
 }
