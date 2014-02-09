@@ -10,9 +10,10 @@
             "hotkey":"7",
             "icon":"goldfury",
             "alerts": [
-                { "type":"color", "time":"300", "color":"blue" },
+                { "type":"color", "time":"300", "color":"#CDEE69" },
                 { "type":"color", "time":"299", "color":"white" },
-                { "type":"color", "time":"30", "color":"red" }
+                { "type":"color", "time":"60", "color":"#FFE377" },
+                { "type":"color", "time":"30", "color":"#E09690" }
             ]
         },
         {
@@ -22,9 +23,10 @@
             "hotkey":"8",
             "icon":"firegiant",
             "alerts": [
-                { "type":"color", "time":"300", "color":"blue" },
+                { "type":"color", "time":"300", "color":"#CDEE69" },
                 { "type":"color", "time":"299", "color":"white" },
-                { "type":"color", "time":"30", "color":"red" }
+                { "type":"color", "time":"60", "color":"#FFE377" },
+                { "type":"color", "time":"30", "color":"#E09690" }
             ]
         },
         {
@@ -34,9 +36,10 @@
             "hotkey":"S-7",
             "icon":"furies",
             "alerts": [
-                { "type":"color", "time":"120", "color":"blue" },
+                { "type":"color", "time":"120", "color":"#CDEE69" },
                 { "type":"color", "time":"119", "color":"white" },
-                { "type":"color", "time":"20", "color":"red" }
+                { "type":"color", "time":"40", "color":"#FFE377" },
+                { "type":"color", "time":"20", "color":"#E09690" }
             ]
         },
         {
@@ -46,9 +49,10 @@
             "hotkey":"SC-7",
             "icon":"furies",
             "alerts": [
-                { "type":"color", "time":"120", "color":"blue" },
+                { "type":"color", "time":"120", "color":"#CDEE69" },
                 { "type":"color", "time":"119", "color":"white" },
-                { "type":"color", "time":"20", "color":"red" }
+                { "type":"color", "time":"40", "color":"#FFE377" },
+                { "type":"color", "time":"20", "color":"#E09690" }
             ]
         },
         {
@@ -58,9 +62,10 @@
             "hotkey":"7",
             "icon":"buff_orange",
             "alerts": [
-                { "type":"color", "time":"240", "color":"blue" },
+                { "type":"color", "time":"240", "color":"#CDEE69" },
                 { "type":"color", "time":"239", "color":"white" },
-                { "type":"color", "time":"20", "color":"red" }
+                { "type":"color", "time":"40", "color":"#FFE377" },
+                { "type":"color", "time":"20", "color":"#E09690" }
             ]
         },
         {
@@ -70,9 +75,10 @@
             "hotkey":"7",
             "icon":"buff_red",
             "alerts": [
-                { "type":"color", "time":"240", "color":"blue" },
+                { "type":"color", "time":"240", "color":"#CDEE69" },
                 { "type":"color", "time":"239", "color":"white" },
-                { "type":"color", "time":"20", "color":"red" }
+                { "type":"color", "time":"40", "color":"#FFE377" },
+                { "type":"color", "time":"20", "color":"#E09690" }
             ]
         },
         {
@@ -82,9 +88,10 @@
             "hotkey":"7",
             "icon":"buff_blue",
             "alerts": [
-                { "type":"color", "time":"240", "color":"blue" },
+                { "type":"color", "time":"240", "color":"#CDEE69" },
                 { "type":"color", "time":"239", "color":"white" },
-                { "type":"color", "time":"20", "color":"red" }
+                { "type":"color", "time":"40", "color":"#FFE377" },
+                { "type":"color", "time":"20", "color":"#E09690" }
             ]
         },
         {
@@ -94,9 +101,10 @@
             "hotkey":"7",
             "icon":"buff_blue",
             "alerts": [
-                { "type":"color", "time":"240", "color":"blue" },
+                { "type":"color", "time":"240", "color":"#CDEE69" },
                 { "type":"color", "time":"239", "color":"white" },
-                { "type":"color", "time":"20", "color":"red" }
+                { "type":"color", "time":"40", "color":"#FFE377" },
+                { "type":"color", "time":"20", "color":"#E09690" }
             ]
         }
     ]
