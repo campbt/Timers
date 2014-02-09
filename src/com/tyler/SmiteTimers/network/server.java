@@ -10,13 +10,14 @@ public class server{
 	ServerSocket servSocket;
 	DataOutputStream dOut;
 	DataInputStream dIn;
-
+	int port;
+	ServerThread serverThread = new ServerThread();
 	public server(String ipAddr, int port)
 	{
 		//ServerSocket servSocket;
+		this.port=port;
 		
-		
-		try{
+		/*try{
 			servSocket = new ServerSocket(port);
 			Socket fromClientSocket = servSocket.accept();
 			dOut = new DataOutputStream(fromClientSocket.getOutputStream());
@@ -25,7 +26,7 @@ public class server{
 		catch (IOException e)
 		{
 			
-		}
+		}*/
 	}
 	public void sendReset (int y)
 	{
@@ -37,6 +38,25 @@ public class server{
 		}
 		catch(IOException e)
 		{
+			
+		}
+	}
+	private class ServerThread extends Thread{
+		private boolean running=true;
+		@Override
+		public void run(){
+			while(running){
+				try{
+					servSocket = new ServerSocket(port);
+					Socket fromClientSocket = servSocket.accept();
+					dOut = new DataOutputStream(fromClientSocket.getOutputStream());
+					dIn = new DataInputStream(fromClientSocket.getInputStream());
+				}
+				catch (IOException e)
+				{
+					
+				}
+			}
 			
 		}
 	}
