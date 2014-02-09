@@ -147,19 +147,38 @@ public class Parser {
                     time *= 1000; // Convert to milliseconds
                 }
                 String colorString = alert.getString(ALERT_COLOR_COLOR);
-                Color color;
-                try {
-                    Field field = Color.class.getField(colorString);
-                    color = (Color)field.get(null);
-                } catch (Exception e) {
-                    color = Color.WHITE;
-                }
-                
-                panel.addColorAlert(time, color);
+                panel.addColorAlert(time, parseColor(colorString));
             }
         }
 
         return panel;
+    }
+
+    public static Color parseColor(String colorString) {
+        Color color;
+        try {
+            // First see if it is a recognized java color
+            Field field = Color.class.getField(colorString);
+            color = (Color)field.get(null);
+        } catch (Exception e) {
+            // Now try to convert its HEX value
+            try {
+                if(colorString.charAt(0) == '#') {
+                    // They're trying to format it in hex
+                    return new Color(
+                        Integer.valueOf( colorString.substring( 1, 3 ), 16 ),
+                        Integer.valueOf( colorString.substring( 3, 5 ), 16 ),
+                        Integer.valueOf( colorString.substring( 5, 7 ), 16 ) );
+                } else {
+                    color = Color.WHITE;
+                }
+            } catch(Exception e2) {
+                // Well, that failed too, so just set it to white
+                System.out.println("Failed to get color: " + colorString);
+                color = Color.WHITE;
+            }
+        }
+        return color;
     }
 
     /**
