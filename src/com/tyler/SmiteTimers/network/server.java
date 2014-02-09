@@ -5,60 +5,116 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.concurrent.LinkedBlockingQueue;
 
 public class server{
-	ServerSocket servSocket;
-	DataOutputStream dOut;
-	DataInputStream dIn;
-	int port;
-	ServerThread serverThread = new ServerThread();
-	public server(String ipAddr, int port)
+	private ArrayList<ConnectionToClient> clientList;
+    private LinkedBlockingQueue<Integer> messages;
+    private ServerSocket serverSocket;
+    
+	public server(int port)
 	{
-		//ServerSocket servSocket;
-		this.port=port;
 		
-		/*try{
-			servSocket = new ServerSocket(port);
-			Socket fromClientSocket = servSocket.accept();
-			dOut = new DataOutputStream(fromClientSocket.getOutputStream());
-			dIn = new DataInputStream(fromClientSocket.getInputStream());
+		clientList = new ArrayList<ConnectionToClient>();
+		try
+		{
+			serverSocket = new ServerSocket(port);
 		}
 		catch (IOException e)
+		{		
+		}
+		Thread addClients = new Thread()  //This thread waits for new connections
 		{
-			
-		}*/
+			public void run()
+			{
+				while(true)
+				{
+					try
+					{
+						Socket socket1 = serverSocket.accept(); //When a client attempts to connect, this accepts the connection
+						clientList.add(new ConnectionToClient(socket1)); //Adds new connection to list
+					}
+					catch(IOException e)
+					{
+						
+					}
+				}
+			}
+		};
+		addClients.setDaemon(true);
+		addClients.start();
+		Thread messageHandling = new Thread()  //This thread waits for a new message to enter the queue from any client
+		{ 
+			public void run()
+			{
+				while (true)
+				{
+					try
+					{
+						Integer k = messages.take();
+						sendReset(k.intValue());
+					}
+					catch(InterruptedException e)
+					{
+						
+					}
+				}
+			}
+		};
+		messageHandling.start();		
 	}
+	
 	public void sendReset (int y)
 	{
 		try
 		{
-					
-			dOut.writeByte(y);
-			dOut.flush();
+			for(ConnectionToClient client : clientList)
+			{
+				
+				client.send(y);
+			}
 		}
 		catch(IOException e)
 		{
 			
 		}
 	}
-	private class ServerThread extends Thread{
-		private boolean running=true;
-		@Override
-		public void run(){
-			while(running){
-				try{
-					servSocket = new ServerSocket(port);
-					Socket fromClientSocket = servSocket.accept();
-					dOut = new DataOutputStream(fromClientSocket.getOutputStream());
-					dIn = new DataInputStream(fromClientSocket.getInputStream());
-				}
-				catch (IOException e)
-				{
-					
-				}
-			}
-			
-		}
-	}
 	
+	private class ConnectionToClient{
+		Socket socket;
+		DataOutputStream dOut;
+		DataInputStream dIn;
+		
+		ConnectionToClient (Socket socket) throws IOException {
+			this.socket = socket;
+			dOut = new DataOutputStream(this.socket.getOutputStream());
+			dIn = new DataInputStream(this.socket.getInputStream());
+			Thread read = new Thread() //This thread waits for a client to send a message, then adds it to the queue
+			{
+				public void run()
+				{
+					while(true)
+					{
+						try
+						{
+							int recieved = dIn.readInt();
+							Integer v = new Integer(recieved);
+							messages.add(v);
+						}
+						catch (IOException e)
+						{
+							
+						}
+					}
+				}
+			};
+			read.setDaemon(true);
+			read.start();
+		}
+ 		public void send(int y) throws IOException{ //sends int y to client
+ 			dOut.writeByte(y);
+ 			dOut.flush();			
+ 		}
+	}
 }

@@ -100,7 +100,7 @@ public class Timer {
                 } catch(InterruptedException e) {
 
                 }
-                // Update time and alert listeners that has a change has occured
+                // Update time and alert listeners that has a change has occurred
                 if(this.running) {
                     Timer.this.time -= Timer.this.alertIncrement;
                     Timer.this.alertListners();
