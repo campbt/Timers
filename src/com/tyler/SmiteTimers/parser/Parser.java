@@ -60,8 +60,9 @@ public class Parser {
                 builder.append(cin.nextLine());
             }
             return parseJson(builder.toString());
-        } catch(FileNotFoundException e) {
+        } catch(Exception e) {
             e.printStackTrace();
+            displayAlert(e);
             return null;
         }
     }
@@ -69,43 +70,34 @@ public class Parser {
     /**
      * Given a JSON file, it reads it in and returns a TimerWindow complete with TimerPanels
      */
-    public static TimerWindow parseJson(String JSON) {
+    public static TimerWindow parseJson(String JSON) throws JSONException {
         TimerWindow timerWindow = new TimerWindow();
         String alertText = null;
 
         System.out.println();
-        try {
-            JSONObject object = new JSONObject(JSON);
-            System.out.println("Valid JSON");
-            
-            // Configure timerWindows
-            int columns = Math.max(1,object.optInt(WINDOW_COLUMNS, 1));
-            int panelWidth = object.optInt(WINDOW_PANEL_WIDTH, 0);
-            String timeFormat = object.optString(WINDOW_FORMAT, WINDOW_FORMAT_DEFAULT);
-            boolean useSeconds = false;
-            if(timeFormat.equals("seconds")) {
-                useSeconds = true;
-            }
-
-            // Set
-            timerWindow.setNumCols(columns);
-            timerWindow.setPanelWidth(panelWidth);
-
-            JSONArray timers = object.getJSONArray(WINDOW_TIMERS);
-            for(int i = 0; i < timers.length(); i++) {
-                JSONObject panel = timers.getJSONObject(i);
-                timerWindow.addTimerPanel(parsePanel(panel, useSeconds));
-            }
-
-            timerWindow.display();
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-            StringWriter sw = new StringWriter();
-            PrintWriter pw = new PrintWriter(sw);
-            e.printStackTrace(pw);
-            alertText = sw.toString();
+        JSONObject object = new JSONObject(JSON);
+        System.out.println("Valid JSON");
+        
+        // Configure timerWindows
+        int columns = Math.max(1,object.optInt(WINDOW_COLUMNS, 1));
+        int panelWidth = object.optInt(WINDOW_PANEL_WIDTH, 0);
+        String timeFormat = object.optString(WINDOW_FORMAT, WINDOW_FORMAT_DEFAULT);
+        boolean useSeconds = false;
+        if(timeFormat.equals("seconds")) {
+            useSeconds = true;
         }
+
+        // Set
+        timerWindow.setNumCols(columns);
+        timerWindow.setPanelWidth(panelWidth);
+
+        JSONArray timers = object.getJSONArray(WINDOW_TIMERS);
+        for(int i = 0; i < timers.length(); i++) {
+            JSONObject panel = timers.getJSONObject(i);
+            timerWindow.addTimerPanel(parsePanel(panel, useSeconds));
+        }
+
+        timerWindow.display();
 
         if(alertText != null) {
             System.out.println("Setting Alert Text");
@@ -258,6 +250,13 @@ public class Parser {
             e.printStackTrace();
         }
 
+    }
+
+    public static void displayAlert(Exception e) {
+        StringWriter sw = new StringWriter();
+        PrintWriter pw = new PrintWriter(sw);
+        e.printStackTrace(pw);
+        displayAlert(sw.toString());
     }
 
     public static void displayAlert(String alert) {
