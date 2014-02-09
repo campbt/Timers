@@ -58,18 +58,13 @@ public class TimerPanel extends JPanel implements Timer.TimeUpdatedListener {
         JLabel picLabel = null;
         if(imagePath != null) {
             try {
-                if(getClass().getResource(imagePath) != null) {
-                    picLabel = new JLabel(new ImageIcon(convertIconString(imagePath)));
-                    this.add(picLabel);
-                    this.setMaximumSize(new Dimension(ICON_SIZE, ICON_SIZE));
-                    //layout.putConstraint(SpringLayout.WEST, picLabel, PADDING, SpringLayout.EAST, title); // Above timer
-                    layout.putConstraint(SpringLayout.NORTH, picLabel, PADDING, SpringLayout.NORTH, this);        
-                    layout.putConstraint(SpringLayout.WEST, picLabel, PADDING, SpringLayout.WEST, this);        
-                    hasImage = true;
-                } else {
-                    System.out.println("WARNING: Image Not Found: " + imagePath);
-                }
-
+                picLabel = new JLabel(new ImageIcon(convertIconString(imagePath)));
+                this.add(picLabel);
+                this.setMaximumSize(new Dimension(ICON_SIZE, ICON_SIZE));
+                //layout.putConstraint(SpringLayout.WEST, picLabel, PADDING, SpringLayout.EAST, title); // Above timer
+                layout.putConstraint(SpringLayout.NORTH, picLabel, PADDING, SpringLayout.NORTH, this);        
+                layout.putConstraint(SpringLayout.WEST, picLabel, PADDING, SpringLayout.WEST, this);        
+                hasImage = true;
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -134,7 +129,6 @@ public class TimerPanel extends JPanel implements Timer.TimeUpdatedListener {
 
     public Image convertIconString(String icon) {
         String imagePath = null;
-        System.out.println("Finding: " + icon);
         if(icon == null) {
             return null;
         } else if(icon.equals("goldfury")) {
@@ -154,10 +148,11 @@ public class TimerPanel extends JPanel implements Timer.TimeUpdatedListener {
         }
         if(imagePath != null) {
             try {
-                BufferedImage buffered = ImageIO.read(getClass().getResource(icon));
+                BufferedImage buffered = ImageIO.read(getClass().getResource(imagePath));
                 return buffered.getScaledInstance(TimerPanel.ICON_SIZE, TimerPanel.ICON_SIZE, java.awt.Image.SCALE_SMOOTH);
             } catch (Exception e) {
-
+                System.out.println("Couldn't load resource: " + imagePath);
+                e.printStackTrace();
             }
         } else {
             // String not known, try to look it up
