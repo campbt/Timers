@@ -19,7 +19,7 @@
             "type":"timer",
             "title":"Fire Giant",
             "duration":300,
-            "hotkey":"7",
+            "hotkey":"8",
             "icon":"firegiant",
             "alerts": [
                 { "type":"color", "time":"300", "color":"blue" },
@@ -31,7 +31,7 @@
             "type":"timer",
             "title":"Left Furies",
             "duration":120,
-            "hotkey":"7",
+            "hotkey":"S-7",
             "icon":"furies",
             "alerts": [
                 { "type":"color", "time":"120", "color":"blue" },
@@ -43,7 +43,7 @@
             "type":"timer",
             "title":"Right Furies",
             "duration":120,
-            "hotkey":"7",
+            "hotkey":"SC-7",
             "icon":"furies",
             "alerts": [
                 { "type":"color", "time":"120", "color":"blue" },

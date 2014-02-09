@@ -43,6 +43,7 @@ public class TimerPanel extends JPanel implements Timer.TimeUpdatedListener {
     Timer timer;
     JLabel timerText;
     JLabel title;
+    private int hotkey;
 
     public TimerPanel(Timer timer, String titleText, String imagePath) {
         this.timer = timer;
@@ -173,6 +174,14 @@ public class TimerPanel extends JPanel implements Timer.TimeUpdatedListener {
 
     public int getFrameHeight() {
         return 60;
+    }
+
+    public void setHotkey(int hotkey) {
+        this.hotkey = hotkey;
+    }
+
+    public int getHotkey() {
+        return this.hotkey;
     }
 
 }

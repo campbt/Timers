@@ -7,11 +7,14 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.net.URL;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Scanner;
 
 import javax.swing.JOptionPane;
 
+import org.jnativehook.keyboard.NativeKeyEvent;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -45,8 +48,11 @@ public class Parser {
     private static final String ALERT_COLOR_TIME = "time";
     private static final String ALERT_COLOR_COLOR = "color";
 
+    // Keycode mapper
+    private static Map<String, Integer> keyToKeyCodeMap;
 
     public static TimerWindow  parseJsonFile(String filename) {
+        setUpKeyMapper();
         try {
             StringBuilder builder = new StringBuilder();
             Scanner cin = new Scanner(new File(filename));
@@ -129,6 +135,7 @@ public class Parser {
 
         Timer timer = new Timer(duration);
         TimerPanel panel = new TimerPanel(timer, title, icon);
+        panel.setHotkey(convertStringToNativeKey(hotkey));
 
         for(int i = 0; i < alerts.length(); i++) {
             JSONObject alert = alerts.getJSONObject(i);
@@ -153,6 +160,85 @@ public class Parser {
         }
 
         return panel;
+    }
+
+    /**
+     * Converts a native key event into the form that is stored by the parser
+     */
+    public static int convertNativeKey(NativeKeyEvent e) {
+        return (e.getModifiers() << 16) | e.getKeyCode();
+    }
+
+    /**
+     *  Converts a string from the JSON to the form that can be read using native key
+     *  (convertNativeKey returns the same form as this)
+     */
+    public static int convertStringToNativeKey(String s) {
+        if(Parser.keyToKeyCodeMap == null) {
+            setUpKeyMapper();
+        }
+        try {
+            int modifiers = 0;
+            String keycodeString = s;
+            if(s.contains("-")) {
+                // Contains modifies (in form <Modifies>-<Keycode> ex: SA-NUMPAD3
+                String[] split = s.split("-");
+                String modifiersString = split[0];
+                keycodeString = split[1];
+                if(modifiersString.contains("S")) {
+                    modifiers += NativeKeyEvent.SHIFT_MASK;
+                }
+                if(modifiersString.contains("C")) {
+                    modifiers += NativeKeyEvent.CTRL_MASK;
+                }
+                if(modifiersString.contains("M")) {
+                    modifiers += NativeKeyEvent.META_MASK;
+                }
+                if(modifiersString.contains("A")) {
+                    modifiers += NativeKeyEvent.ALT_MASK;
+                }
+            }
+
+            int keycode = Parser.keyToKeyCodeMap.get(keycodeString);
+
+            return (modifiers << 16) | keycode;
+
+        } catch(Exception e) {
+            System.out.println("Couldn't convert hotkey string: " + s);
+            e.printStackTrace();
+            return 0;
+        }
+    }
+
+    /**
+     * 
+     */
+    public static void setUpKeyMapper() {
+        final String PREFIX = "public static final int org.jnativehook.keyboard.NativeKeyEvent.VK_";
+        keyToKeyCodeMap = new HashMap<String, Integer>();
+        try {
+            Class clazz = Class.forName("org.jnativehook.keyboard.NativeKeyEvent");
+            Field[] fields = clazz.getDeclaredFields();
+            for(Field f: fields) {
+              // for fields that are visible (e.g. private)
+              f.setAccessible(true);
+
+              try {
+                  if(f.toString().contains(PREFIX)) {
+                    // This is a field we should store
+                    // note: get(null) for static field
+                    keyToKeyCodeMap.put(f.toString().substring(PREFIX.length()), (Integer)f.get(null));
+                    //System.out.println("Storing: "  + (f.toString().substring(PREFIX.length()) + " -> "  + f.get(null)));
+                  }
+              } catch( Exception e) {
+                  System.out.println("Couldn't get field: " + f);
+              }
+            }
+        } catch (Exception e) {
+            System.out.println("Couldn't set up key mapper");
+            e.printStackTrace();
+        }
+
     }
 
     public static void displayAlert(String alert) {

@@ -25,6 +25,7 @@ import org.jnativehook.keyboard.NativeKeyListener;
 
 import com.tyler.SmiteTimers.core.Timer;
 import com.tyler.SmiteTimers.panels.TimerPanel;
+import com.tyler.SmiteTimers.parser.Parser;
 
 public class TimerWindow extends JFrame implements NativeKeyListener, WindowListener  {
 
@@ -32,7 +33,7 @@ public class TimerWindow extends JFrame implements NativeKeyListener, WindowList
 
     private List<Timer> timers = new LinkedList<Timer>();
     private List<TimerPanel> panels = new LinkedList<TimerPanel>();
-    private Map<Integer, Timer> keysMapper = new HashMap<Integer, Timer>();
+    private Map<Integer, Timer> keysMapper = new HashMap<Integer, Timer>(); // uses Parser.convertToKeyCode for the key, maps to the timer for that hotkey
 
     private int numCols;
     private int panelWidth = 0;
@@ -100,6 +101,7 @@ public class TimerWindow extends JFrame implements NativeKeyListener, WindowList
 
     public void addTimerPanel(TimerPanel panel) {
         this.panels.add(panel);
+        this.keysMapper.put(panel.getHotkey(), panel.getTimer());
     }
 
     public void windowOpened(WindowEvent e) {
@@ -132,8 +134,11 @@ public class TimerWindow extends JFrame implements NativeKeyListener, WindowList
     public void windowDeactivated(WindowEvent e) { /* Unimplemented */ }
 
     public void nativeKeyReleased(NativeKeyEvent e) {
-        if(keysMapper.containsKey(e.getKeyCode())) {
-            keysMapper.get(e.getKeyCode()).toggle();
+        //System.out.println("You pressed modifies: " + e.getModifiers());
+        //System.out.println("You pressed key: " + e.getKeyCode());
+        int convertedKey = Parser.convertNativeKey(e);
+        if(keysMapper.containsKey(convertedKey)) {
+            keysMapper.get(convertedKey).toggle();
         }
     }
 
