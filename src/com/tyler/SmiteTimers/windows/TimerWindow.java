@@ -2,7 +2,10 @@ package com.tyler.SmiteTimers.windows;
 
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.Frame;
 import java.awt.GridLayout;
+import java.awt.Robot;
+import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
@@ -42,6 +45,9 @@ public class TimerWindow extends JFrame implements NativeKeyListener, WindowList
     private int posX;
     private int posY;
 
+    private boolean clickThroughMode;
+    private Robot robot;
+
     public TimerWindow() {
         // Initial Parameters
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -55,21 +61,62 @@ public class TimerWindow extends JFrame implements NativeKeyListener, WindowList
         this.setAlwaysOnTop( true );
         this.setLocationByPlatform( true );
 
+        try {
+            robot = new Robot();
+        } catch(Exception e) {
+            System.out.println("Couldn't make robot");
+        }
+
+        this.setFocusableWindowState(false);
+
         // Set up dragging
         this.addMouseListener(new MouseAdapter()
         {
+            private boolean mouseDown;
            public void mousePressed(MouseEvent e)
            {
-              TimerWindow.this.posX=e.getX();
-              TimerWindow.this.posY=e.getY();
+               System.out.println("Mouse Pressed");
+               this.mouseDown = true;
+               if(TimerWindow.this.clickThroughMode) {
+                   // Oh god the dirty hack
+                   System.out.println("Pressed");
+                   new Thread() {
+                       @Override
+                       public void run() {
+                           TimerWindow.this.setExtendedState(Frame.ICONIFIED);
+                           try { Thread.sleep(50); } catch(Exception e) { }
+                           TimerWindow.this.robot.mousePress(InputEvent.BUTTON1_MASK);
+                           if(!mouseDown) {
+                               // User finished clicking before robot, so have robot release
+                               try { Thread.sleep(5); } catch(Exception e) { }
+                               TimerWindow.this.robot.mouseRelease(InputEvent.BUTTON1_MASK);
+                           }
+                           //TimerWindow.this.robot.mouseRelease(InputEvent.BUTTON1_MASK);
+                           try { Thread.sleep(100); } catch(Exception e) { }
+                           TimerWindow.this.setExtendedState(Frame.NORMAL);
+                       }
+                   }.run();
+
+               } else {
+                   TimerWindow.this.posX=e.getX();
+                   TimerWindow.this.posY=e.getY();
+               }
            }
+
+            @Override
+            public void mouseReleased(MouseEvent e) {
+                this.mouseDown = false;
+
+            }
         });
         this.addMouseMotionListener(new MouseAdapter()
         {
              public void mouseDragged(MouseEvent evt)
              {
                 //sets frame position when mouse dragged			
-                setLocation (evt.getXOnScreen()-posX,evt.getYOnScreen()-posY);
+                 if(!TimerWindow.this.clickThroughMode) {
+                     setLocation (evt.getXOnScreen()-posX,evt.getYOnScreen()-posY);
+                 }
              }
         });
 
@@ -139,6 +186,13 @@ public class TimerWindow extends JFrame implements NativeKeyListener, WindowList
         int convertedKey = Parser.convertNativeKey(e);
         if(keysMapper.containsKey(convertedKey)) {
             keysMapper.get(convertedKey).toggle();
+        }
+
+        if(e.getKeyCode() == NativeKeyEvent.VK_0) {
+            this.clickThroughMode = true;
+        }
+        if(e.getKeyCode() == NativeKeyEvent.VK_9) {
+            this.clickThroughMode = false;
         }
     }
 
