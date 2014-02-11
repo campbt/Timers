@@ -17,6 +17,7 @@ public class Client {
 	public Client(String ipAddr, int port, Collection<Timer> timers)
 	{
 		timerList=timers;
+		messages = new LinkedBlockingQueue<Integer>();
 		try
 		{
 			socket1 = new Socket(InetAddress.getByName(ipAddr),port);
@@ -24,7 +25,6 @@ public class Client {
 		}
 		catch (IOException e)
 		{
-			
 		}
 		Thread messageHandling = new Thread()  //Thread handles received messages from server
 		{
@@ -92,7 +92,7 @@ public class Client {
 		{
 			try
 			{
-				dOut.writeByte(y);
+				dOut.writeInt(y);
 				dOut.flush();
 			}
 			catch (IOException e)

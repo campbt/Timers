@@ -22,6 +22,7 @@ public class Server{
 	{
 		timerList=timers;
 		clientList = new ArrayList<ConnectionToClient>();
+		messages2 = new LinkedBlockingQueue<MessageData>();
 		try
 		{
 			serverSocket = new ServerSocket(port);
@@ -53,6 +54,7 @@ public class Server{
 		{ 
 			public void run()
 			{
+				//MessageData k = new MessageData(0,"");
 				while (true)
 				{
 					try
@@ -83,7 +85,8 @@ public class Server{
 		{
 			for(ConnectionToClient client : clientList)
 			{	
-				if(client.socket.getInetAddress().toString()!=y.ipAddress){
+				//String testAddress=client.socket.getInetAddress().toString();
+				if(!(client.socket.getInetAddress().toString().equals(y.ipAddress))){
 					client.send(y.message);
 				}
 			}
@@ -93,8 +96,8 @@ public class Server{
 			
 		}
 	}
-	
-	public void sendReset (int y) //If reset is originating from server, it sends through this method
+
+	public void sendReset2 (int y) //If reset is originating from server, it sends through this method
 	{
 		try
 		{
@@ -143,16 +146,8 @@ public class Server{
 		}
 		public void send(int y) throws IOException	//sends int y to client
 		{
-			dOut.writeByte(y);
+			dOut.writeInt(y);
 			dOut.flush();			
  		}
-	}
-	class MessageData{
-		public int message;
-		public String ipAddress;
-		MessageData(int message, String ipAddress){
-			this.message=message;
-			this.ipAddress=ipAddress;
-		}
 	}
 }
