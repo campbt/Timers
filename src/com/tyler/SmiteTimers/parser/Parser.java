@@ -32,6 +32,7 @@ public class Parser {
     private static final String WINDOW_FORMAT = "time";
     private static final String WINDOW_FORMAT_DEFAULT = "seconds";
     private static final String WINDOW_TIMERS = "timers";
+    private static final String HIDEMODE_HOTKEY = "hidemode_hotkey";
     
     // Timer Panels
     private static final String PANEL_TYPE = "type";
@@ -76,7 +77,6 @@ public class Parser {
 
         System.out.println();
         JSONObject object = new JSONObject(JSON);
-        System.out.println("Valid JSON");
         
         // Configure timerWindows
         int columns = Math.max(1,object.optInt(WINDOW_COLUMNS, 1));
@@ -85,6 +85,12 @@ public class Parser {
         boolean useSeconds = false;
         if(timeFormat.equals("seconds")) {
             useSeconds = true;
+        }
+
+        // Hidemode hotkey stuff
+        if(object.has(HIDEMODE_HOTKEY)) {
+            String hideModeHotKey = object.getString(HIDEMODE_HOTKEY);
+            timerWindow.setHideModeToggleKey(convertStringToNativeKey(hideModeHotKey));
         }
 
         // Set
