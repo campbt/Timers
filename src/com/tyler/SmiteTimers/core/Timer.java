@@ -2,7 +2,6 @@ package com.tyler.SmiteTimers.core;
 
 import java.util.HashSet;
 import java.util.Set;
-import java.util.UUID;
 
 /**
  * Basic timers that can be passed Alerts and will trigger alerts when the timer is reached
@@ -19,6 +18,7 @@ public class Timer {
     private int id;
 
     private Set<TimeUpdatedListener> timeUpdatedListeners = new HashSet<TimeUpdatedListener>();
+    private Set<ToggleListener> toggleListeners = new HashSet<ToggleListener>();
     private TimerThread timerThread = new TimerThread();
 
     public Timer(long time) {
@@ -37,6 +37,15 @@ public class Timer {
      * Starts timer if it is stopped and resets timer if it is running
      */
     public void toggle() {
+    	alertToggleListeners();
+        if(time == timerLength) {
+            this.start();
+        } else {
+            this.reset();
+        }
+    }
+    
+    public void networkToggle() {
         if(time == timerLength) {
             this.start();
         } else {
@@ -66,6 +75,12 @@ public class Timer {
             listener.timeUpdated(this.time);
         }
     }
+    
+    public void alertToggleListeners() {
+        for(ToggleListener listener: this.toggleListeners) {
+            listener.timeToggled(this.id);
+        }
+    }
 
     public long getTime() {
         return time;
@@ -82,9 +97,20 @@ public class Timer {
     public void removeTimeUpdatedListener(TimeUpdatedListener listener) {
         timeUpdatedListeners.remove(listener);
     }
+    
+    public void addToggleListener(ToggleListener listener) {
+        toggleListeners.add(listener);
+    }
+
+    public void removeToggleListener(ToggleListener listener) {
+        toggleListeners.remove(listener);
+    }
 
     public interface TimeUpdatedListener {
         public void timeUpdated(long timeInMilli);
+    }
+    public interface ToggleListener {
+        public void timeToggled(int ident);
     }
 
     private class TimerThread extends Thread {

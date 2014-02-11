@@ -2,15 +2,12 @@ package com.tyler.SmiteTimers.parser;
 
 import java.awt.Color;
 import java.io.File;
-import java.io.FileNotFoundException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Field;
-import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
-import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
 
@@ -20,9 +17,9 @@ import org.jnativehook.keyboard.NativeKeyEvent;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import org.json.JSONTokener;
 
 import com.tyler.SmiteTimers.core.Timer;
+import com.tyler.SmiteTimers.network.Network;
 import com.tyler.SmiteTimers.panels.TimerPanel;
 import com.tyler.SmiteTimers.windows.TimerWindow;
 
@@ -120,13 +117,18 @@ public class Parser {
             // Get network parameters
             int port = object.getInt(NETWORK_PORT);
             Collection<Timer> timers = timerWindow.getTimers();
-
             // TODO: Spin up network
+            Network network;
             if(networkMode.equals(NETWORK_MODE_HOST)) {
                 // TODO: I am a host
-            } else if(networkMode.equals(NETWORK_MODE_CLIENT)) {
+            	network = new Network(port,timers);
+            } else { //if(networkMode.equals(NETWORK_MODE_CLIENT)) {
                 // TODO: I am a client
                 String ip = object.getString(NETWORK_IP);
+                network = new Network(ip,port,timers);
+            }
+            for(Timer timerInstance : timers){
+            	timerInstance.addToggleListener(network);
             }
         }
 

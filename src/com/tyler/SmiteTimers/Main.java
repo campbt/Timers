@@ -3,7 +3,6 @@ package com.tyler.SmiteTimers;
 import java.net.URL;
 
 import com.tyler.SmiteTimers.parser.Parser;
-import com.tyler.SmiteTimers.windows.TimerWindow;
 
 public class Main {
 

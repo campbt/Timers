@@ -5,14 +5,18 @@ import java.io.DataOutputStream;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.util.Collection;
 import java.util.concurrent.LinkedBlockingQueue;
 
+import com.tyler.SmiteTimers.core.Timer;
 public class Client {
 	private ConnectionToServer server;
 	private Socket socket1;
     private LinkedBlockingQueue<Integer> messages;
-	public Client(String ipAddr, int port)
+    Collection<Timer> timerList;
+	public Client(String ipAddr, int port, Collection<Timer> timers)
 	{
+		timerList=timers;
 		try
 		{
 			socket1 = new Socket(InetAddress.getByName(ipAddr),port);
@@ -31,6 +35,11 @@ public class Client {
 					try
 					{
 						Integer p = messages.take(); //Waits for a message to enter queue, then pops it.
+						for(Timer timerInstance : timerList ){
+							if(timerInstance.getId()==p.intValue()){
+								timerInstance.networkToggle();
+							}
+						}
 					}
 					catch(InterruptedException e)
 					{

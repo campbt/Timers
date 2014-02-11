@@ -6,16 +6,21 @@ import java.io.IOException;
 import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
+import java.util.Collection;
 import java.util.concurrent.LinkedBlockingQueue;
+
+import com.tyler.SmiteTimers.core.Timer;
 
 public class Server{
 	private ArrayList<ConnectionToClient> clientList;
-    private LinkedBlockingQueue<Integer> messages;
+    //private LinkedBlockingQueue<Integer> messages;
+    private LinkedBlockingQueue<MessageData> messages2;
     private ServerSocket serverSocket;
+    Collection<Timer> timerList;
     
-	public Server(int port)
+	public Server(int port, Collection<Timer> timers)
 	{
-		
+		timerList=timers;
 		clientList = new ArrayList<ConnectionToClient>();
 		try
 		{
@@ -52,8 +57,15 @@ public class Server{
 				{
 					try
 					{
-						Integer k = messages.take();
-						sendReset(k.intValue());
+						MessageData k = messages2.take();
+						for(Timer timerInstance : timerList)
+						{
+							if(timerInstance.getId()==k.message)
+							{
+								timerInstance.networkToggle();
+							}
+						}
+						sendReset(k);
 					}
 					catch(InterruptedException e)
 					{
@@ -65,13 +77,29 @@ public class Server{
 		messageHandling.start();		
 	}
 	
-	public void sendReset (int y)
+	public void sendReset (MessageData y) //If reset is originating from a client, it sends through this method
+	{
+		try
+		{
+			for(ConnectionToClient client : clientList)
+			{	
+				if(client.socket.getInetAddress().toString()!=y.ipAddress){
+					client.send(y.message);
+				}
+			}
+		}
+		catch(IOException e)
+		{
+			
+		}
+	}
+	
+	public void sendReset (int y) //If reset is originating from server, it sends through this method
 	{
 		try
 		{
 			for(ConnectionToClient client : clientList)
 			{
-				
 				client.send(y);
 			}
 		}
@@ -86,8 +114,8 @@ public class Server{
 		DataOutputStream dOut;
 		DataInputStream dIn;
 		
-		ConnectionToClient (Socket socket) throws IOException {
-			this.socket = socket;
+		ConnectionToClient (Socket socket2) throws IOException {
+			socket = socket2;
 			dOut = new DataOutputStream(this.socket.getOutputStream());
 			dIn = new DataInputStream(this.socket.getInputStream());
 			Thread read = new Thread() //This thread waits for a client to send a message, then adds it to the queue
@@ -99,8 +127,9 @@ public class Server{
 						try
 						{
 							int recieved = dIn.readInt();
-							Integer v = new Integer(recieved);
-							messages.add(v);
+							//Integer v = new Integer(recieved);
+							messages2.add(new MessageData(recieved,socket.getInetAddress().toString()));
+							//messages.add(v);
 						}
 						catch (IOException e)
 						{
@@ -112,9 +141,18 @@ public class Server{
 			read.setDaemon(true);
 			read.start();
 		}
- 		public void send(int y) throws IOException{ //sends int y to client
- 			dOut.writeByte(y);
- 			dOut.flush();			
+		public void send(int y) throws IOException	//sends int y to client
+		{
+			dOut.writeByte(y);
+			dOut.flush();			
  		}
+	}
+	class MessageData{
+		public int message;
+		public String ipAddress;
+		MessageData(int message, String ipAddress){
+			this.message=message;
+			this.ipAddress=ipAddress;
+		}
 	}
 }
