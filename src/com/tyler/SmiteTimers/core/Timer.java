@@ -2,6 +2,7 @@ package com.tyler.SmiteTimers.core;
 
 import java.util.HashSet;
 import java.util.Set;
+import java.util.UUID;
 
 /**
  * Basic timers that can be passed Alerts and will trigger alerts when the timer is reached
@@ -11,12 +12,14 @@ public class Timer {
 
     private static final long DEFAULT_ALERT_INCREMENT = 1000; // 1 seconds
 
-    final long timerLength; // Duration of timer in milliseconds
-    long time; // Current amount of time left on timer
-    long alertIncrement; // Amount of time to wait in between TimeUpdated calls
+    private final long timerLength; // Duration of timer in milliseconds
+    private long time; // Current amount of time left on timer
+    private long alertIncrement; // Amount of time to wait in between TimeUpdated calls
 
-    Set<TimeUpdatedListener> timeUpdatedListeners = new HashSet<TimeUpdatedListener>();
-    TimerThread timerThread = new TimerThread();
+    private int id;
+
+    private Set<TimeUpdatedListener> timeUpdatedListeners = new HashSet<TimeUpdatedListener>();
+    private TimerThread timerThread = new TimerThread();
 
     public Timer(long time) {
         this(time, DEFAULT_ALERT_INCREMENT);
@@ -108,6 +111,14 @@ public class Timer {
             }
         }
 
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getId() {
+        return this.id;
     }
 
 }

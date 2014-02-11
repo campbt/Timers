@@ -13,6 +13,7 @@ import java.awt.event.MouseEvent;
 import java.awt.event.WindowEvent;
 import java.awt.event.WindowListener;
 import java.awt.geom.RoundRectangle2D;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -37,7 +38,6 @@ public class TimerWindow extends JFrame implements NativeKeyListener, WindowList
     private static final float TRANSPARENCY = 0.5f;
     private static final int HIDE_TIME = 1000; // Wait 1 second
 
-    private List<Timer> timers = new LinkedList<Timer>();
     private List<TimerPanel> panels = new LinkedList<TimerPanel>();
     private Map<Integer, Timer> keysMapper = new HashMap<Integer, Timer>(); // uses Parser.convertToKeyCode for the key, maps to the timer for that hotkey
 
@@ -204,4 +204,7 @@ public class TimerWindow extends JFrame implements NativeKeyListener, WindowList
         this.hideModeToggleKey = key;
     }
 
+    public Collection<Timer> getTimers() {
+        return this.keysMapper.values(); 
+    }
 }

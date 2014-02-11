@@ -3,9 +3,13 @@
     "panel_width":120,
     "time":"seconds",
     "hidemode_hotkey":"0",
+    "network_mode":"host",
+    "network_ip":"10.2.3.100",
+    "network_port":123,
     "timers":[
         {
             "type":"timer",
+            "id":1,
             "title":"Gold Fury",
             "duration":300,
             "hotkey":"7",
@@ -19,6 +23,7 @@
         },
         {
             "type":"timer",
+            "id":2,
             "title":"Fire Giant",
             "duration":300,
             "hotkey":"8",
@@ -32,6 +37,7 @@
         },
         {
             "type":"timer",
+            "id":3,
             "title":"Left Furies",
             "duration":120,
             "hotkey":"S-7",
@@ -45,6 +51,7 @@
         },
         {
             "type":"timer",
+            "id":4,
             "title":"Right Furies",
             "duration":120,
             "hotkey":"SC-7",
@@ -58,6 +65,7 @@
         },
         {
             "type":"timer",
+            "id":5,
             "title":"Speed Buff",
             "duration":240,
             "hotkey":"7",
@@ -71,6 +79,7 @@
         },
         {
             "type":"timer",
+            "id":6,
             "title":"Speed Buff",
             "duration":240,
             "hotkey":"7",
@@ -84,6 +93,7 @@
         },
         {
             "type":"timer",
+            "id":7,
             "title":"Left Mana Buff",
             "duration":240,
             "hotkey":"7",
@@ -97,6 +107,7 @@
         },
         {
             "type":"timer",
+            "id":8,
             "title":"Right Mana Buff",
             "duration":240,
             "hotkey":"7",

@@ -7,7 +7,9 @@ import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Field;
 import java.net.URL;
+import java.util.Collection;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.Scanner;
@@ -32,10 +34,16 @@ public class Parser {
     private static final String WINDOW_FORMAT = "time";
     private static final String WINDOW_FORMAT_DEFAULT = "seconds";
     private static final String WINDOW_TIMERS = "timers";
-    private static final String HIDEMODE_HOTKEY = "hidemode_hotkey";
+    private static final String WINDOW_HIDEMODE_HOTKEY = "hidemode_hotkey";
+    private static final String NETWORK_MODE = "network_mode";
+    private static final String NETWORK_MODE_HOST = "host";
+    private static final String NETWORK_MODE_CLIENT = "client";
+    private static final String NETWORK_IP = "network_ip";
+    private static final String NETWORK_PORT = "network_port";
     
     // Timer Panels
     private static final String PANEL_TYPE = "type";
+    private static final String PANEL_TIMER_ID = "id";
     private static final String PANEL_TYPE_DEFAULT = "timer";
     private static final String PANEL_TITLE = "title";
     private static final String PANEL_DURATION = "duration";
@@ -52,7 +60,11 @@ public class Parser {
     // Keycode mapper
     private static Map<String, Integer> keyToKeyCodeMap;
 
-    public static TimerWindow  parseJsonFile(String filename) {
+    // IDs stuff
+    private static HashSet<Integer> ids = new HashSet<Integer>();
+
+    public static TimerWindow parseJsonFile(String filename) {
+        ids.clear();
         setUpKeyMapper();
         try {
             StringBuilder builder = new StringBuilder();
@@ -88,8 +100,8 @@ public class Parser {
         }
 
         // Hidemode hotkey stuff
-        if(object.has(HIDEMODE_HOTKEY)) {
-            String hideModeHotKey = object.getString(HIDEMODE_HOTKEY);
+        if(object.has(WINDOW_HIDEMODE_HOTKEY)) {
+            String hideModeHotKey = object.getString(WINDOW_HIDEMODE_HOTKEY);
             timerWindow.setHideModeToggleKey(convertStringToNativeKey(hideModeHotKey));
         }
 
@@ -97,10 +109,24 @@ public class Parser {
         timerWindow.setNumCols(columns);
         timerWindow.setPanelWidth(panelWidth);
 
-        JSONArray timers = object.getJSONArray(WINDOW_TIMERS);
-        for(int i = 0; i < timers.length(); i++) {
-            JSONObject panel = timers.getJSONObject(i);
-            timerWindow.addTimerPanel(parsePanel(panel, useSeconds));
+        JSONArray timersJSON = object.getJSONArray(WINDOW_TIMERS);
+        boolean forceId = object.has(NETWORK_MODE);
+        for(int i = 0; i < timersJSON.length(); i++) {
+            JSONObject panel = timersJSON.getJSONObject(i);
+            timerWindow.addTimerPanel(parsePanel(panel, useSeconds, forceId));
+        }
+
+        // Network Stuff
+        String networkMode = object.optString(NETWORK_MODE, "none");
+        if(networkMode.equals(NETWORK_MODE_HOST)) {
+            // TODO: I am a host
+            int port = object.getInt(NETWORK_PORT);
+            Collection<Timer> timers = timerWindow.getTimers();
+        } else if(networkMode.equals(NETWORK_MODE_CLIENT)) {
+            // TODO: I am a client
+            String ip = object.getString(NETWORK_IP);
+            int port = object.getInt(NETWORK_PORT);
+            Collection<Timer> timers = timerWindow.getTimers();
         }
 
         timerWindow.display();
@@ -112,16 +138,16 @@ public class Parser {
         return timerWindow;
     }
 
-    public static TimerPanel parsePanel(JSONObject json, boolean useSeconds) throws JSONException {
+    public static TimerPanel parsePanel(JSONObject json, boolean useSeconds, boolean forceId) throws JSONException {
         // Assume type is timer for now, until other panels are made
         //String type = json.getString(PANEL_TYPE);
         //if(type == null) {
             //type = PANEL_TYPE_DEFAULT;
         //}
-        return parseTimerPanel(json, useSeconds);
+        return parseTimerPanel(json, useSeconds, forceId);
     }
 
-    public static TimerPanel parseTimerPanel(JSONObject json, boolean useSeconds) {
+    public static TimerPanel parseTimerPanel(JSONObject json, boolean useSeconds, boolean forceId) {
         int duration = json.getInt(PANEL_DURATION);
         if(useSeconds) {
             duration *= 1000; // Convert to milliseconds
@@ -134,6 +160,17 @@ public class Parser {
         Timer timer = new Timer(duration);
         TimerPanel panel = new TimerPanel(timer, title, icon);
         panel.setHotkey(convertStringToNativeKey(hotkey));
+
+        if(forceId) {
+            // Requires this timer to have a unique id
+            int id = json.getInt(PANEL_TIMER_ID);
+            if(ids.contains(id)) {
+                throw new JSONException("Duplicate Timer Id: " + id);
+            } else {
+                ids.add(id);
+                timer.setId(id);
+            }
+        }
 
         for(int i = 0; i < alerts.length(); i++) {
             JSONObject alert = alerts.getJSONObject(i);
