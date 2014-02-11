@@ -85,9 +85,7 @@ public class Parser {
      */
     public static TimerWindow parseJson(String JSON) throws JSONException {
         TimerWindow timerWindow = new TimerWindow();
-        String alertText = null;
 
-        System.out.println();
         JSONObject object = new JSONObject(JSON);
         
         // Configure timerWindows
@@ -110,31 +108,30 @@ public class Parser {
         timerWindow.setPanelWidth(panelWidth);
 
         JSONArray timersJSON = object.getJSONArray(WINDOW_TIMERS);
-        boolean forceId = object.has(NETWORK_MODE);
+        boolean networkMode = object.has(NETWORK_MODE);
         for(int i = 0; i < timersJSON.length(); i++) {
             JSONObject panel = timersJSON.getJSONObject(i);
-            timerWindow.addTimerPanel(parsePanel(panel, useSeconds, forceId));
+            timerWindow.addTimerPanel(parsePanel(panel, useSeconds, networkMode));
         }
 
         // Network Stuff
-        String networkMode = object.optString(NETWORK_MODE, "none");
-        if(networkMode.equals(NETWORK_MODE_HOST)) {
-            // TODO: I am a host
+        if(networkMode) {
+            // Get network parameters
+            String networkMode = object.getString(NETWORK_MODE);
             int port = object.getInt(NETWORK_PORT);
             Collection<Timer> timers = timerWindow.getTimers();
-        } else if(networkMode.equals(NETWORK_MODE_CLIENT)) {
-            // TODO: I am a client
-            String ip = object.getString(NETWORK_IP);
-            int port = object.getInt(NETWORK_PORT);
-            Collection<Timer> timers = timerWindow.getTimers();
+
+            // TODO: Spin up network
+            if(networkMode.equals(NETWORK_MODE_HOST)) {
+                // TODO: I am a host
+            } else if(networkMode.equals(NETWORK_MODE_CLIENT)) {
+                // TODO: I am a client
+                String ip = object.getString(NETWORK_IP);
+            }
         }
 
         timerWindow.display();
 
-        if(alertText != null) {
-            System.out.println("Setting Alert Text");
-            displayAlert(alertText);
-        }
         return timerWindow;
     }
 
