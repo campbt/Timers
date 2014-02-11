@@ -7,11 +7,11 @@ import java.net.InetAddress;
 import java.net.Socket;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class client {
+public class Client {
 	private ConnectionToServer server;
 	private Socket socket1;
     private LinkedBlockingQueue<Integer> messages;
-	public client(String ipAddr, int port)
+	public Client(String ipAddr, int port)
 	{
 		try
 		{

@@ -8,12 +8,12 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.concurrent.LinkedBlockingQueue;
 
-public class server{
+public class Server{
 	private ArrayList<ConnectionToClient> clientList;
     private LinkedBlockingQueue<Integer> messages;
     private ServerSocket serverSocket;
     
-	public server(int port)
+	public Server(int port)
 	{
 		
 		clientList = new ArrayList<ConnectionToClient>();
