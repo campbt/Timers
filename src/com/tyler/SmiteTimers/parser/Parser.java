@@ -108,16 +108,16 @@ public class Parser {
         timerWindow.setPanelWidth(panelWidth);
 
         JSONArray timersJSON = object.getJSONArray(WINDOW_TIMERS);
-        boolean networkMode = object.has(NETWORK_MODE);
+        String networkMode = object.getString(NETWORK_MODE);
+        boolean networkModeEnabled = networkMode.equals(NETWORK_MODE_HOST) || networkMode.equals(NETWORK_MODE_CLIENT);
         for(int i = 0; i < timersJSON.length(); i++) {
             JSONObject panel = timersJSON.getJSONObject(i);
-            timerWindow.addTimerPanel(parsePanel(panel, useSeconds, networkMode));
+            timerWindow.addTimerPanel(parsePanel(panel, useSeconds, networkModeEnabled));
         }
 
         // Network Stuff
-        if(networkMode) {
+        if(networkModeEnabled) {
             // Get network parameters
-            String networkMode = object.getString(NETWORK_MODE);
             int port = object.getInt(NETWORK_PORT);
             Collection<Timer> timers = timerWindow.getTimers();
 
