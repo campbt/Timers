@@ -35,6 +35,7 @@ import com.tyler.SmiteTimers.parser.Parser;
 public class TimerWindow extends JFrame implements NativeKeyListener, WindowListener  {
 
     private static final float TRANSPARENCY = 0.5f;
+    private static final int HIDE_TIME = 1000; // Wait 1 second
 
     private List<Timer> timers = new LinkedList<Timer>();
     private List<TimerPanel> panels = new LinkedList<TimerPanel>();
@@ -47,8 +48,8 @@ public class TimerWindow extends JFrame implements NativeKeyListener, WindowList
     private int posX;
     private int posY;
 
-    private boolean clickThroughMode;
-    private Robot robot;
+    private int hideModeToggleKey;
+    private boolean hideMode;
 
     public TimerWindow() {
         // Initial Parameters
@@ -62,69 +63,33 @@ public class TimerWindow extends JFrame implements NativeKeyListener, WindowList
         // Always on top
         this.setAlwaysOnTop( true );
         this.setLocationByPlatform( true );
-
-        try {
-            robot = new Robot();
-        } catch(Exception e) {
-            System.out.println("Couldn't make robot");
-        }
-
         this.setFocusableWindowState(false);
 
         // Set up dragging
         this.addMouseListener(new MouseAdapter()
         {
-            private boolean mouseDown;
            public void mousePressed(MouseEvent e)
            {
-               System.out.println("Mouse Pressed");
-               this.mouseDown = true;
-               if(TimerWindow.this.clickThroughMode) {
-                   // Oh god the dirty hack
-                   System.out.println("Pressed");
-                   new Thread() {
-                       @Override
-                       public void run() {
-                           TimerWindow.this.setExtendedState(Frame.ICONIFIED);
-                           try { Thread.sleep(50); } catch(Exception e) { }
-                           TimerWindow.this.robot.mousePress(InputEvent.BUTTON1_MASK);
-                           if(!mouseDown) {
-                               // User finished clicking before robot, so have robot release
-                               try { Thread.sleep(5); } catch(Exception e) { }
-                               TimerWindow.this.robot.mouseRelease(InputEvent.BUTTON1_MASK);
-                           }
-                           //TimerWindow.this.robot.mouseRelease(InputEvent.BUTTON1_MASK);
-                           try { Thread.sleep(100); } catch(Exception e) { }
-                           TimerWindow.this.setExtendedState(Frame.NORMAL);
-                       }
-                   }.run();
-
-               } else {
+               if(!TimerWindow.this.hideMode) {
                    TimerWindow.this.posX=e.getX();
                    TimerWindow.this.posY=e.getY();
                }
            }
-
-            @Override
-            public void mouseReleased(MouseEvent e) {
-                //this.mouseDown = false;
-
-            }
         });
+
         this.addMouseMotionListener(new MouseAdapter()
         {
              public void mouseDragged(MouseEvent evt)
              {
-                //sets frame position when mouse dragged			
-                 if(!TimerWindow.this.clickThroughMode) {
+                //sets frame position when mouse dragged            
+                 if(!TimerWindow.this.hideMode) {
                      setLocation (evt.getXOnScreen()-posX,evt.getYOnScreen()-posY);
                  }
              }
 
             public void mouseMoved(MouseEvent evt) {
-                if(TimerWindow.this.clickThroughMode) {
-                    // Hide the window, mouse shouldn't be in it
-                    //System.out.println("Moved: " + evt.getX() + ", " + evt.getY() + "  |  " + evt.getXOnScreen() + ", " + evt.getYOnScreen());
+                if(TimerWindow.this.hideMode) {
+                    // Hide the window, mouse shouldn't be in itA
                     TimerWindow.this.setVisible(false);
                     new Thread() {
                         @Override
@@ -134,13 +99,12 @@ public class TimerWindow extends JFrame implements NativeKeyListener, WindowList
                             int boundsX2 = TimerWindow.this.getX() + TimerWindow.this.getWidth();
                             int boundsY1 = TimerWindow.this.getY();
                             int boundsY2 = TimerWindow.this.getY() + TimerWindow.this.getHeight();
-                            //System.out.println("Bounds: " + boundsX1 + " x2=" + boundsX2 + " y1=" + boundsY1 + " y2=" + boundsY2);
+                            Point coords;
                             while(stillInWindow) {
-                                try { Thread.sleep(1000); } catch(Exception e) { }
-                                Point coords = MouseInfo.getPointerInfo().getLocation();
-                                //System.out.println("Mouse at: " + coords.getX() + ", " + coords.getY());
+                                try { Thread.sleep(TimerWindow.HIDE_TIME); } catch(Exception e) { }
+                                coords = MouseInfo.getPointerInfo().getLocation();
                                 if(coords.getX() > boundsX1 && coords.getX() < boundsX2 && coords.getY() > boundsY1  && coords.getY() < boundsY2) {
-                                    //System.out.println("Still in there!");
+                                    // Mouse still in window, don't reveal
                                 } else {
                                     stillInWindow = false;
                                 }
@@ -154,8 +118,6 @@ public class TimerWindow extends JFrame implements NativeKeyListener, WindowList
         });
 
     }
-
-    //public void 
 
     public void display() {
         int numRows = this.panels.size() / numCols + this.panels.size() % this.numCols;
@@ -179,6 +141,10 @@ public class TimerWindow extends JFrame implements NativeKeyListener, WindowList
         this.setMaximumSize(new Dimension(width,height));
         this.pack();
         this.setVisible(true);
+    }
+
+    public void toggleHideMode() {
+        this.hideMode = !this.hideMode;
     }
 
     public void addTimerPanel(TimerPanel panel) {
@@ -216,18 +182,12 @@ public class TimerWindow extends JFrame implements NativeKeyListener, WindowList
     public void windowDeactivated(WindowEvent e) { /* Unimplemented */ }
 
     public void nativeKeyReleased(NativeKeyEvent e) {
-        //System.out.println("You pressed modifies: " + e.getModifiers());
-        //System.out.println("You pressed key: " + e.getKeyCode());
         int convertedKey = Parser.convertNativeKey(e);
         if(keysMapper.containsKey(convertedKey)) {
             keysMapper.get(convertedKey).toggle();
         }
-
-        if(e.getKeyCode() == NativeKeyEvent.VK_0) {
-            this.clickThroughMode = true;
-        }
-        if(e.getKeyCode() == NativeKeyEvent.VK_9) {
-            this.clickThroughMode = false;
+        if(e.getKeyCode() == this.hideModeToggleKey) {
+            toggleHideMode();
         }
     }
 
@@ -240,4 +200,8 @@ public class TimerWindow extends JFrame implements NativeKeyListener, WindowList
     public void setNumCols(int numCols) {
         this.numCols =  numCols;
     }
+    public void setHideModeToggleKey(int key) {
+        this.hideModeToggleKey = key;
+    }
+
 }

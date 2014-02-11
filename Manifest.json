@@ -2,6 +2,7 @@
     "columns":2,
     "panel_width":120,
     "time":"seconds",
+    "hidemode_hotkey":"0",
     "timers":[
         {
             "type":"timer",
