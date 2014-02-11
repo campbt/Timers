@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.Dimension;
 import java.awt.Frame;
 import java.awt.GridLayout;
+import java.awt.MouseInfo;
+import java.awt.Point;
 import java.awt.Robot;
 import java.awt.event.InputEvent;
 import java.awt.event.MouseAdapter;
@@ -105,7 +107,7 @@ public class TimerWindow extends JFrame implements NativeKeyListener, WindowList
 
             @Override
             public void mouseReleased(MouseEvent e) {
-                this.mouseDown = false;
+                //this.mouseDown = false;
 
             }
         });
@@ -118,9 +120,42 @@ public class TimerWindow extends JFrame implements NativeKeyListener, WindowList
                      setLocation (evt.getXOnScreen()-posX,evt.getYOnScreen()-posY);
                  }
              }
+
+            public void mouseMoved(MouseEvent evt) {
+                if(TimerWindow.this.clickThroughMode) {
+                    // Hide the window, mouse shouldn't be in it
+                    //System.out.println("Moved: " + evt.getX() + ", " + evt.getY() + "  |  " + evt.getXOnScreen() + ", " + evt.getYOnScreen());
+                    TimerWindow.this.setVisible(false);
+                    new Thread() {
+                        @Override
+                        public void run() {
+                            boolean stillInWindow = true;
+                            int boundsX1 = TimerWindow.this.getX();
+                            int boundsX2 = TimerWindow.this.getX() + TimerWindow.this.getWidth();
+                            int boundsY1 = TimerWindow.this.getY();
+                            int boundsY2 = TimerWindow.this.getY() + TimerWindow.this.getHeight();
+                            //System.out.println("Bounds: " + boundsX1 + " x2=" + boundsX2 + " y1=" + boundsY1 + " y2=" + boundsY2);
+                            while(stillInWindow) {
+                                try { Thread.sleep(1000); } catch(Exception e) { }
+                                Point coords = MouseInfo.getPointerInfo().getLocation();
+                                //System.out.println("Mouse at: " + coords.getX() + ", " + coords.getY());
+                                if(coords.getX() > boundsX1 && coords.getX() < boundsX2 && coords.getY() > boundsY1  && coords.getY() < boundsY2) {
+                                    //System.out.println("Still in there!");
+                                } else {
+                                    stillInWindow = false;
+                                }
+                            }
+                            TimerWindow.this.setVisible(true);
+                        }
+                    }.run();
+                    
+                }
+            }
         });
 
     }
+
+    //public void 
 
     public void display() {
         int numRows = this.panels.size() / numCols + this.panels.size() % this.numCols;
