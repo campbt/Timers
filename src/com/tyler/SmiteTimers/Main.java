@@ -26,7 +26,6 @@ public class Main {
                 } catch (UnsupportedEncodingException e){
                 	
                 }
-            	//String filePath = "C:\\Users\\Zachary Langer\\Documents\\GitHub\\Timers\\bin" + "\\Manifest.json";
                 System.out.println(filePath);
                 Parser.parseJsonFile(filePath);
             }

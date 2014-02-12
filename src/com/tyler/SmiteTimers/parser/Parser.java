@@ -117,18 +117,15 @@ public class Parser {
             // Get network parameters
             int port = object.getInt(NETWORK_PORT);
             Collection<Timer> timers = timerWindow.getTimers();
-            // TODO: Spin up network
             Network network;
             if(networkMode.equals(NETWORK_MODE_HOST)) {
-                // TODO: I am a host
             	network = new Network(port,timers);
             } else { //if(networkMode.equals(NETWORK_MODE_CLIENT)) {
-                // TODO: I am a client
                 String ip = object.getString(NETWORK_IP);
                 network = new Network(ip,port,timers);
             }
             for(Timer timerInstance : timers){
-            	timerInstance.addToggleListener(network);
+            	timerInstance.addStateChangedListener(network);
             }
         }
 

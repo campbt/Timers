@@ -3,7 +3,7 @@ package com.tyler.SmiteTimers.network;
 import java.util.Collection;
 
 import com.tyler.SmiteTimers.core.Timer;
-public class Network implements Timer.ToggleListener{
+public class Network implements Timer.StateChangedListener {
 	boolean isServer;
 	Server server;
 	Client client;
@@ -16,18 +16,17 @@ public class Network implements Timer.ToggleListener{
 		client = new Client(ip, port, timers);
 		isServer=false;
 	}
-	public void sendReset(int y)
+	public void sendMessage(Message message)
 	{
 		if(isServer){
-			server.sendReset2(y);
-		}
-		else{
-			client.sendReset(y);
+			server.sendMessage(message);
+		} else {
+			client.sendMessage(message);
 		}
 	}
 
 	@Override
-	public void timeToggled(int id){
-		sendReset(id);
+	public void stateChanged(Timer timer){
+		sendMessage(new Message(timer.getId(), timer.getState(), timer.getTime()));
 	}
 }

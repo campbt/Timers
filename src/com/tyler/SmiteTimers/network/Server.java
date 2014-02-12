@@ -11,51 +11,36 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import com.tyler.SmiteTimers.core.Timer;
 
 public class Server{
 	private ArrayList<ConnectionToClient> clientList;
-    //private LinkedBlockingQueue<Integer> messages;
-	private LinkedBlockingQueue<MessageData> messages2;
-    private ServerSocket serverSocket;
-    Collection<Timer> timerList;
+	private LinkedBlockingQueue<Message> messages;
+	private ServerSocket serverSocket;
+	Map<Integer, Timer> timers; // Map of timer.id -> Timer object
+
     Writer writer = null;
     int messageNumber;
-   // private PrintWriter writer;// = new PrintWriter("Serverlog.txt", "UTF-8");
     
 	public Server(int port, Collection<Timer> timers)
 	{
-		//try{
-	//		writer= new PrintWriter("Serverlog.txt","UTF-8");
-		//}
-		//catch(UnsupportedEncodingException e){
-			
-	//	}
+		this.timers = new HashMap<Integer, Timer>();
+        for(Timer timer: timers) {
+            this.timers.put(timer.getId(), timer);
+        }
 		messageNumber=0;
 		try {
 		    writer = new BufferedWriter(new OutputStreamWriter(
 		          new FileOutputStream("serverLog.txt"), "utf-8"));
 		} 
 		catch (IOException ex) {
-		  // report
 		} 
-		finally 
-		{
-		   try 
-		   {
-			   //writer.close();}
-		   }
-		   catch (Exception ex) 
-		   {
-			   
-		   }
-		}
-		//writer.write("")
-		timerList=timers;
 		clientList = new ArrayList<ConnectionToClient>();
-		messages2 = new LinkedBlockingQueue<MessageData>();
+		messages = new LinkedBlockingQueue<Message>();
 		try
 		{
 			serverSocket = new ServerSocket(port);
@@ -74,7 +59,6 @@ public class Server{
 						Socket socket1 = serverSocket.accept(); //When a client attempts to connect, this accepts the connection
 						socket1.setKeepAlive(true);
 						writer.write("Connection established to" + socket1.getInetAddress().toString() + "\r\n");
-						//writer.close();
 						writer.flush();
 						clientList.add(new ConnectionToClient(socket1)); //Adds new connection to list
 					}
@@ -91,30 +75,31 @@ public class Server{
 		{ 
 			public void run()
 			{
-				//MessageData k = new MessageData(0,"");
 				while (true)
 				{
 					try
 					{
-						MessageData k = messages2.take();
+						Message message = messages.take();
 						try
 						{
 							messageNumber++;
-							writer.write("Message number "+messageNumber+" received: " + k.message + " from " + k.ipAddress + "\r\n");
+							writer.write("Message number "+messageNumber+" received: " + message.id + " from " + message.ip + "\r\n");
 							writer.flush();
-						}
-						catch (IOException e)
+						}catch (IOException e)
 						{
 							
 						}
-						for(Timer timerInstance : timerList)
+						if(Server.this.timers.containsKey(message.id)) 
 						{
-							if(timerInstance.getId()==k.message)
-							{
-								timerInstance.networkToggle();
-							}
-						}
-						sendReset(k);
+							 Timer timer = Server.this.timers.get(message.id);
+	                         timer.setState(message.state);
+	                         timer.setTime(message.time);
+	                    } else {
+	                            // No idea what timer this goes to
+	                            // TODO Put log message
+	                            System.out.println("Have no timer for id: " + message.id);
+	                    }
+						sendMessage(message);				
 					}
 					catch(InterruptedException e)
 					{
@@ -130,14 +115,14 @@ public class Server{
 		messageHandling.start();		
 	}
 	
-	public void sendReset (MessageData y) //If reset is originating from a client, it sends through this method
+	public void sendMessage (Message message) //If reset is originating from a client, it sends through this method
 	{
 		try
 		{
 			for(ConnectionToClient client : clientList)
 			{	
-				//String testAddress=client.socket.getInetAddress().toString();
-				if(!(client.socket.getInetAddress().toString().equals(y.ipAddress))){
+				//if(message.ip != null && !(client.socket.getInetAddress().toString().equals(message.ip))){
+				if(!(client.socket.getInetAddress().toString().equals(message.ip))){
 					try{
 						writer.write("Forwarding message to: "+ client.socket.getInetAddress().toString() + "\r\n");
 						writer.flush();
@@ -146,7 +131,7 @@ public class Server{
 					{
 						
 					}
-					client.send(y.message);
+					client.send(message);
 				}
 			}
 		}
@@ -155,31 +140,6 @@ public class Server{
 			
 		}
 	}
-
-	public void sendReset2 (int y) //If reset is originating from server, it sends through this method
-	{
-		try
-		{
-			for(ConnectionToClient client : clientList)
-			{
-				try
-				{
-					writer.write("Message originating from server. Sending to " + client.socket.getInetAddress().toString() + "the message: " + y + "\r\n");
-					writer.flush();
-				}
-				catch (IOException e)
-				{
-					
-				}
-				client.send(y);
-			}
-		}
-		catch(IOException e)
-		{
-			
-		}
-	}
-	
 	private class ConnectionToClient{
 		Socket socket;
 		DataOutputStream dOut;
@@ -197,28 +157,30 @@ public class Server{
 					{
 						try
 						{
-							int recieved = dIn.readInt();
-							//Integer v = new Integer(recieved);
+							int id = dIn.readInt();
+							int state = dIn.readInt();
+							long time = dIn.readLong();
 							try
 							{
-								writer.write("Client has sent message: "+recieved +"\r\n");
+								writer.write("Client has sent message: "+ id +"\r\n");
 								writer.flush();
 							}
 							catch(IOException e){
 								
 							}
-							addMessage(new MessageData(recieved,socket.getInetAddress().toString()));
+							//TODO:
+							addMessage(new Message(id, state, time, socket.getInetAddress().toString()));
+							//messages.add(new Message(id, state, time, socket.getInetAddress().toString()));
 							//messages.add(v);
 							try
 							{
-								writer.write("Size of messages2 = " + messages2.size() + "\r\n");
+								writer.write("Size of messages2 = " + messages.size() + "\r\n");
 								writer.flush();
 							}
 							catch(IOException e){
 								
 							}
 						}
-						
 						catch (IOException e)
 						{
 							
@@ -229,13 +191,15 @@ public class Server{
 			read.setDaemon(true);
 			read.start();
 		}
-		public void send(int y) throws IOException	//sends int y to client
+		public void send(Message message) throws IOException
 		{
-			dOut.writeInt(y);
+			dOut.writeInt(message.id);
+			dOut.writeInt(message.state);
+			dOut.writeDouble(message.time);
 			dOut.flush();			
  		}
 	}
-	public synchronized void addMessage(MessageData data){
-		messages2.add(data);
+	public synchronized void addMessage(Message message){
+		messages.add(message);
 	}
 }
