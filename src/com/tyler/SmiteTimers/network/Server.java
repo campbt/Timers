@@ -18,6 +18,10 @@ import java.util.concurrent.LinkedBlockingQueue;
 import com.tyler.SmiteTimers.core.Timer;
 
 public class Server{
+	//private static final byte RESETTIMER = 1;
+	private static final byte SENDMESSAGE = 1;
+	private static final byte HEARTBEAT = 2;
+	
 	private ArrayList<ConnectionToClient> clientList;
 	private LinkedBlockingQueue<Message> messages;
 	private ServerSocket serverSocket;
@@ -71,6 +75,37 @@ public class Server{
 		};
 		addClients.setDaemon(true);
 		addClients.start();
+		/*Thread checkConnectionStatus = new Thread()
+		{
+			public void run()
+			{
+				while(true)
+				{
+						//TODO: sleep for 10 seconds, then send byte to all clients
+					try
+					{
+						Thread.sleep(10000);
+					}
+					catch(InterruptedException e)
+					{
+						
+					}
+					for(ConnectionToClient client: Server.this.clientList)
+					{
+						try
+						{
+							writer.write("Sending heartbeat \r\n");
+							writer.flush();
+							client.send(HEARTBEAT, null);
+						}
+						catch(IOException e)
+						{		
+						}
+					}
+				}
+			}
+		};
+		checkConnectionStatus.start();*/
 		Thread messageHandling = new Thread()  //This thread waits for a new message to enter the queue from any client
 		{ 
 			public void run()
@@ -85,7 +120,8 @@ public class Server{
 							messageNumber++;
 							writer.write("Message number "+messageNumber+" received: " + message.id + " from " + message.ip + "\r\n");
 							writer.flush();
-						}catch (IOException e)
+						}
+						catch (IOException e)
 						{
 							
 						}
@@ -94,17 +130,29 @@ public class Server{
 							 Timer timer = Server.this.timers.get(message.id);
 	                         timer.setState(message.state);
 	                         timer.setTime(message.time);
-	                    } else {
+	                    } 
+						else 
+	                    {
 	                            // No idea what timer this goes to
 	                            // TODO Put log message
-	                            System.out.println("Have no timer for id: " + message.id);
+							try
+							{
+	                            writer.write("Have no timer for id: " + message.id + "\r\n");
+	                            writer.flush();
+							}
+							catch(IOException e)
+							{
+								
+							}
 	                    }
-						sendMessage(message);				
+						//sendMessage(message);				
 					}
 					catch(InterruptedException e)
 					{
-						try{
-							writer.write("Thread was interruped");
+						try
+						{
+							writer.write("Thread was interruped \r\n");
+							writer.flush();
 						}
 						catch (IOException q){
 						}
@@ -119,9 +167,18 @@ public class Server{
 	{
 		try
 		{
+			byte actionToPerform = SENDMESSAGE;
 			for(ConnectionToClient client : clientList)
 			{	
 				//if(message.ip != null && !(client.socket.getInetAddress().toString().equals(message.ip))){
+				try{
+					writer.write("Source: " +message.ip+"\r\n");
+					writer.write("Destination: " + client.socket.getInetAddress().toString()+"\r\n");
+					writer.flush();
+				}
+				catch(IOException e){
+					
+				}
 				if(!(client.socket.getInetAddress().toString().equals(message.ip))){
 					try{
 						writer.write("Forwarding message to: "+ client.socket.getInetAddress().toString() + "\r\n");
@@ -131,7 +188,7 @@ public class Server{
 					{
 						
 					}
-					client.send(message);
+					client.send(actionToPerform,message);
 				}
 			}
 		}
@@ -157,28 +214,33 @@ public class Server{
 					{
 						try
 						{
-							int id = dIn.readInt();
-							int state = dIn.readInt();
-							long time = dIn.readLong();
-							try
+							byte actionToPerform = dIn.readByte();
+							if(actionToPerform==SENDMESSAGE)
 							{
-								writer.write("Client has sent message: "+ id +"\r\n");
-								writer.flush();
-							}
-							catch(IOException e){
+								int id = dIn.readInt();
+								int state = dIn.readInt();
+								long time = dIn.readLong();
+								try
+								{
+									writer.write("Client has sent message: "+ id +" with time " + time + "\r\n");
+									writer.write("Client IP is: " + socket.getInetAddress().toString() +"\r\n");
+									writer.flush();
+								}
+								catch(IOException e){
 								
-							}
-							//TODO:
-							addMessage(new Message(id, state, time, socket.getInetAddress().toString()));
-							//messages.add(new Message(id, state, time, socket.getInetAddress().toString()));
-							//messages.add(v);
-							try
-							{
-								writer.write("Size of messages2 = " + messages.size() + "\r\n");
-								writer.flush();
-							}
-							catch(IOException e){
+								}
+								//TODO:
+								//sendByte(actionToPerform);
+								addMessage(new Message(id, state, time, socket.getInetAddress().toString()));
+								//messages.add(new Message(id, state, time, socket.getInetAddress().toString()));
+								try
+								{
+									writer.write("Size of messages = " + messages.size() + "\r\n");
+									writer.flush();
+								}
+								catch(IOException e){
 								
+								}
 							}
 						}
 						catch (IOException e)
@@ -191,12 +253,21 @@ public class Server{
 			read.setDaemon(true);
 			read.start();
 		}
-		public void send(Message message) throws IOException
+		public synchronized void send(byte actionToPerform, Message message) throws IOException
 		{
-			dOut.writeInt(message.id);
-			dOut.writeInt(message.state);
-			dOut.writeDouble(message.time);
-			dOut.flush();			
+			if(actionToPerform == SENDMESSAGE){
+				dOut.writeByte(SENDMESSAGE);
+				dOut.writeInt(message.id);
+				dOut.writeInt(message.state);
+				dOut.writeLong(message.time);
+				dOut.flush();
+			}
+			else if (actionToPerform==HEARTBEAT)
+			{
+				dOut.writeByte(HEARTBEAT);
+				dOut.flush();
+				writer.write("Heartbeat sent\r\n");
+			}
  		}
 	}
 	public synchronized void addMessage(Message message){

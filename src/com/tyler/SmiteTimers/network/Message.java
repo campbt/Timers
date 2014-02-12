@@ -8,7 +8,7 @@ public class Message {
     int state;
     long time;
     String ip;
-
+    
     public Message(int id, int state, long time) {
         this.id = id;
         this.state = state;
@@ -20,6 +20,7 @@ public class Message {
         this.state = state;
         this.time = time;
         this.ip = ip;
+        //this.id=id-1;
     }
 
 }
