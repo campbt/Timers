@@ -40,7 +40,6 @@ public class Timer {
      * Starts timer if it is stopped and resets timer if it is running
      */
     public void toggle() {
-    	alertStateChangedListeners();
         if(this.state == Timer.STATE_STOPPED) {
             this.setState(Timer.STATE_COUNTING_DOWN);
         } else {
@@ -72,6 +71,7 @@ public class Timer {
     }
     
     public void alertStateChangedListeners() {
+        System.out.println("AlertStateChanged: " + this.state);
         for(StateChangedListener listener: this.toggleListeners) {
             listener.stateChanged(this);
         }
