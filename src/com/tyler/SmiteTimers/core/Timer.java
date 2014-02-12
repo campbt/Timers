@@ -10,15 +10,18 @@ import java.util.Set;
 public class Timer {
 
     private static final long DEFAULT_ALERT_INCREMENT = 1000; // 1 seconds
+    private static final int STATE_STOPPED = 0;
+    private static final int STATE_COUNTING_DOWN = 1;
 
     private final long timerLength; // Duration of timer in milliseconds
     private long time; // Current amount of time left on timer
     private long alertIncrement; // Amount of time to wait in between TimeUpdated calls
 
     private int id;
+    private int state;
 
     private Set<TimeUpdatedListener> timeUpdatedListeners = new HashSet<TimeUpdatedListener>();
-    private Set<ToggleListener> toggleListeners = new HashSet<ToggleListener>();
+    private Set<StateChangedListener> toggleListeners = new HashSet<StateChangedListener>();
     private TimerThread timerThread = new TimerThread();
 
     public Timer(long time) {
@@ -37,19 +40,11 @@ public class Timer {
      * Starts timer if it is stopped and resets timer if it is running
      */
     public void toggle() {
-    	alertToggleListeners();
-        if(time == timerLength) {
-            this.start();
+    	alertStateChangedListeners();
+        if(this.state == Timer.STATE_STOPPED) {
+            this.setState(Timer.STATE_COUNTING_DOWN);
         } else {
-            this.reset();
-        }
-    }
-    
-    public void networkToggle() {
-        if(time == timerLength) {
-            this.start();
-        } else {
-            this.reset();
+            this.setState(Timer.STATE_STOPPED);
         }
     }
 
@@ -58,7 +53,7 @@ public class Timer {
     }
 
     public void reset() {
-        time = timerLength;
+        this.time = timerLength;
         this.timerThread.turnOff();
 
         alertListners();
@@ -76,9 +71,9 @@ public class Timer {
         }
     }
     
-    public void alertToggleListeners() {
-        for(ToggleListener listener: this.toggleListeners) {
-            listener.timeToggled(this.id);
+    public void alertStateChangedListeners() {
+        for(StateChangedListener listener: this.toggleListeners) {
+            listener.stateChanged(this);
         }
     }
 
@@ -86,8 +81,35 @@ public class Timer {
         return time;
     }
 
+    public void setTime(long timeInMilli) {
+        this.time = timeInMilli;
+        alertListners();
+    }
+
     public long getTimerLength() {
         return timerLength;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public int getId() {
+        return this.id;
+    }
+
+    public int getState() {
+        return this.state;
+    }
+
+    public void setState(int state) {
+        this.state = state;
+        if(this.state == STATE_COUNTING_DOWN) {
+            this.start();
+        } else {
+            this.reset();
+        }
+        alertStateChangedListeners();
     }
 
     public void addTimeUpdatedListener(TimeUpdatedListener listener) {
@@ -98,19 +120,19 @@ public class Timer {
         timeUpdatedListeners.remove(listener);
     }
     
-    public void addToggleListener(ToggleListener listener) {
+    public void addStateChangedListener(StateChangedListener listener) {
         toggleListeners.add(listener);
     }
 
-    public void removeToggleListener(ToggleListener listener) {
+    public void removeStateChangedListener(StateChangedListener listener) {
         toggleListeners.remove(listener);
     }
 
     public interface TimeUpdatedListener {
         public void timeUpdated(long timeInMilli);
     }
-    public interface ToggleListener {
-        public void timeToggled(int ident);
+    public interface StateChangedListener {
+        public void stateChanged(Timer timer);
     }
 
     private class TimerThread extends Thread {
@@ -124,27 +146,19 @@ public class Timer {
         public void run() {
             this.running = true;
             while(this.running && time > 0) {
-                try {
-                    Thread.sleep(Timer.this.alertIncrement);
-                } catch(InterruptedException e) {
-
-                }
                 // Update time and alert listeners that has a change has occurred
                 if(this.running) {
                     Timer.this.time -= Timer.this.alertIncrement;
                     Timer.this.alertListners();
                 }
+                try {
+                    Thread.sleep(Timer.this.alertIncrement);
+                } catch(InterruptedException e) {
+
+                }
             }
         }
 
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
-
-    public int getId() {
-        return this.id;
     }
 
 }

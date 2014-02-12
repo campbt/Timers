@@ -7,22 +7,26 @@ import java.net.ServerSocket;
 import java.net.Socket;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.concurrent.LinkedBlockingQueue;
 
 import com.tyler.SmiteTimers.core.Timer;
 
 public class Server{
 	private ArrayList<ConnectionToClient> clientList;
-    //private LinkedBlockingQueue<Integer> messages;
-    private LinkedBlockingQueue<MessageData> messages2;
+    private LinkedBlockingQueue<Message> messages;
     private ServerSocket serverSocket;
-    Collection<Timer> timerList;
+    Map<Integer, Timer> timers; // Map of timer.id -> Timer object
     
 	public Server(int port, Collection<Timer> timers)
 	{
-		timerList=timers;
+        this.timers = new HashMap<Integer, Timer>();
+        for(Timer timer: timers) {
+            this.timers.put(timer.getId(), timer);
+        }
 		clientList = new ArrayList<ConnectionToClient>();
-		messages2 = new LinkedBlockingQueue<MessageData>();
+		messages = new LinkedBlockingQueue<Message>();
 		try
 		{
 			serverSocket = new ServerSocket(port);
@@ -59,15 +63,17 @@ public class Server{
 				{
 					try
 					{
-						MessageData k = messages2.take();
-						for(Timer timerInstance : timerList)
-						{
-							if(timerInstance.getId()==k.message)
-							{
-								timerInstance.networkToggle();
-							}
-						}
-						sendReset(k);
+						Message message = messages.take();
+                        if(Server.this.timers.containsKey(message.id)) {
+                            Timer timer = Server.this.timers.get(message.id);
+                            timer.setState(message.state);
+                            timer.setTime(message.time);
+                        } else {
+                            // No idea what timer this goes to
+                            // TODO Put log message
+                            System.out.println("Have no timer for id: " + message.id);
+                        }
+						sendMessage(message);
 					}
 					catch(InterruptedException e)
 					{
@@ -79,15 +85,15 @@ public class Server{
 		messageHandling.start();		
 	}
 	
-	public void sendReset (MessageData y) //If reset is originating from a client, it sends through this method
+	public void sendMessage (Message message) //If reset is originating from a client, it sends through this method
 	{
 		try
 		{
 			for(ConnectionToClient client : clientList)
 			{	
 				//String testAddress=client.socket.getInetAddress().toString();
-				if(!(client.socket.getInetAddress().toString().equals(y.ipAddress))){
-					client.send(y.message);
+				if(message.ip != null && !(client.socket.getInetAddress().toString().equals(message.ip))){
+					client.send(message);
 				}
 			}
 		}
@@ -97,21 +103,6 @@ public class Server{
 		}
 	}
 
-	public void sendReset2 (int y) //If reset is originating from server, it sends through this method
-	{
-		try
-		{
-			for(ConnectionToClient client : clientList)
-			{
-				client.send(y);
-			}
-		}
-		catch(IOException e)
-		{
-			
-		}
-	}
-	
 	private class ConnectionToClient{
 		Socket socket;
 		DataOutputStream dOut;
@@ -129,10 +120,11 @@ public class Server{
 					{
 						try
 						{
-							int recieved = dIn.readInt();
-							//Integer v = new Integer(recieved);
-							messages2.add(new MessageData(recieved,socket.getInetAddress().toString()));
-							//messages.add(v);
+							int id = dIn.readInt();
+							int state = dIn.readInt();
+							long time = dIn.readLong();
+
+							messages.add(new Message(id, state, time, socket.getInetAddress().toString()));
 						}
 						catch (IOException e)
 						{
@@ -144,9 +136,11 @@ public class Server{
 			read.setDaemon(true);
 			read.start();
 		}
-		public void send(int y) throws IOException	//sends int y to client
+		public void send(Message message) throws IOException	//sends int y to client
 		{
-			dOut.writeInt(y);
+			dOut.writeInt(message.id);
+			dOut.writeInt(message.state);
+			dOut.writeDouble(message.time);
 			dOut.flush();			
  		}
 	}
