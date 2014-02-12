@@ -75,7 +75,7 @@ public class Server{
 		};
 		addClients.setDaemon(true);
 		addClients.start();
-		/*Thread checkConnectionStatus = new Thread()
+		Thread checkConnectionStatus = new Thread()
 		{
 			public void run()
 			{
@@ -105,7 +105,7 @@ public class Server{
 				}
 			}
 		};
-		checkConnectionStatus.start();*/
+		checkConnectionStatus.start();
 		Thread messageHandling = new Thread()  //This thread waits for a new message to enter the queue from any client
 		{ 
 			public void run()
@@ -145,7 +145,7 @@ public class Server{
 								
 							}
 	                    }
-						//sendMessage(message);				
+						sendMessage(message);				
 					}
 					catch(InterruptedException e)
 					{

@@ -129,7 +129,7 @@ public class Client {
 									int id = dIn.readInt();
 									int state = dIn.readInt();
 									long time = dIn.readLong();
-									writer.write("Sending message id: " + id + " with time " +time+"\r\n");
+									writer.write("Message received id: " + id + " with time " +time+"\r\n");
 									writer.flush();
 									messages.add(new Message(id, state, time));
 								}

@@ -45,6 +45,7 @@ public class Timer {
         } else {
             this.setState(Timer.STATE_STOPPED);
         }
+        alertStateChangedListeners();
     }
 
     public void start() {
@@ -103,13 +104,16 @@ public class Timer {
     }
 
     public void setState(int state) {
-        this.state = state;
-        if(this.state == STATE_COUNTING_DOWN) {
-            this.start();
-        } else {
-            this.reset();
+        if(!(this.state==state))
+        {
+        	this.state = state;
+        	if(this.state == STATE_COUNTING_DOWN) {
+        		this.start();
+        	} else {
+        		this.reset();
+        	}
+        	//alertStateChangedListeners();
         }
-        alertStateChangedListeners();
     }
 
     public void addTimeUpdatedListener(TimeUpdatedListener listener) {
