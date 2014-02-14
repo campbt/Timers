@@ -58,7 +58,7 @@ public class Network implements Timer.StateChangedListener {
 			catch(IOException e){
 				
 			}
-			server.sendMessage(message);
+			server.sendMessage(message,null);
 		} else {
 			try{
 				writer.write("Having client send message: "+message.id+"\r\n");

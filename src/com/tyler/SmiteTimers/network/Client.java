@@ -19,6 +19,7 @@ public class Client {
 	private static final byte RESETTIMER=1;
 	private static final byte SENDMESSAGE=1;
 	private static final byte HEARTBEAT=2;
+	private static final byte BUILDTIMERLIST = 3;
 	//private static final byte RECONNECT=4;
 	
 	private ConnectionToServer server;
@@ -60,6 +61,11 @@ public class Client {
 						Client.this.messageHandling.start();
 						writer.write("Connection established to server \r\n");
 						writer.flush();
+						for(Timer timer : Client.this.timers.values())
+						{
+							Message message = new Message(BUILDTIMERLIST,timer.getId(),timer.getState(),timer.getTimerLength(),timer.getTime());
+							Client.this.server.sendMessage(BUILDTIMERLIST, message);
+						}
 					}
 					catch (IOException e)
 					{
@@ -241,7 +247,7 @@ public class Client {
 		{
 			if(actionToPerform==SENDMESSAGE)
 			{
-				dOut.writeByte(actionToPerform);
+				dOut.writeByte(SENDMESSAGE);
 				dOut.writeInt(message.id);
 				dOut.writeInt(message.state);
 				dOut.writeLong(message.time);
@@ -249,7 +255,16 @@ public class Client {
 			}
 			else if(actionToPerform==HEARTBEAT)
 			{
-				dOut.writeByte(actionToPerform);
+				dOut.writeByte(HEARTBEAT);
+				dOut.flush();
+			}
+			else if(actionToPerform==BUILDTIMERLIST)
+			{
+				dOut.writeByte(BUILDTIMERLIST);
+				dOut.writeInt(message.id);
+				dOut.writeInt(message.state);
+				dOut.writeLong(message.initialTime);
+				dOut.writeLong(message.time);
 				dOut.flush();
 			}
 		}

@@ -19,7 +19,8 @@ public class Timer {
 
     private int id;
     private int state;
-
+    private boolean recentlyStarted;
+    
     private Set<TimeUpdatedListener> timeUpdatedListeners = new HashSet<TimeUpdatedListener>();
     private Set<StateChangedListener> toggleListeners = new HashSet<StateChangedListener>();
     private TimerThread timerThread = new TimerThread();
@@ -30,7 +31,7 @@ public class Timer {
 
     public Timer(long time, long alertIncrement) {
         assert(time % alertIncrement == 0); //  The alert increment needs to evenly go into the total time of the timer
-
+        this.recentlyStarted=false;
         this.timerLength = time;
         this.time = time;
         this.alertIncrement = alertIncrement;
@@ -40,15 +41,34 @@ public class Timer {
      * Starts timer if it is stopped and resets timer if it is running
      */
     public void toggle() {
-        if(this.state == Timer.STATE_STOPPED) {
-            this.setState(Timer.STATE_COUNTING_DOWN);
-        } else {
-            this.setState(Timer.STATE_STOPPED);
-        }
-        alertStateChangedListeners();
+    	if(!this.recentlyStarted)
+    	{
+    		if(this.state == Timer.STATE_STOPPED) {
+    			this.setState(Timer.STATE_COUNTING_DOWN);
+    		} else {
+    			this.setState(Timer.STATE_STOPPED);
+    		}
+    		alertStateChangedListeners();
+    	}
     }
 
     public void start() {
+    	Thread recentlyStartedThread = new Thread()
+    	{
+    		public void run(){
+    			Timer.this.recentlyStarted=true;
+    			try
+    			{
+    				Thread.sleep(5000);
+    			}
+    			catch(InterruptedException e)
+    			{
+    				
+    			}
+    			Timer.this.recentlyStarted=false;
+    		}
+    	};
+    	recentlyStartedThread.start();
         this.timerThread.start();
     }
 
@@ -59,7 +79,9 @@ public class Timer {
         alertListners();
         this.timerThread = new TimerThread();
     }
-
+    public boolean RecentlyStarted(){
+    	return this.recentlyStarted;
+    }
     public void addAlert(Alert alert) {
         this.addTimeUpdatedListener(alert);
         alert.timeUpdated(this.time);
