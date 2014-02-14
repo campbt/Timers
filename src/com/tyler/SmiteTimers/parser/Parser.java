@@ -7,6 +7,7 @@ import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Field;
+import java.net.URL;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -190,10 +191,10 @@ public class Parser {
             } else if(ALERT_SOUND_TYPE.equals(type)) {
                 // Sound Type
                 String name = alert.getString(ALERT_SOUND_SRC);
-                String filename = "src/com/tyler/SmiteTimers/sounds/" + name + ".wav";
+                String filename = "/com/tyler/SmiteTimers/sounds/" + name + ".wav";
                 InputStream in;
                 try {
-                    in = new FileInputStream(new File(filename));
+                    in = panel.getClass().getResourceAsStream(filename);
                 } catch (Exception e) {
                     try {
                         filename = System.getProperty("user.dir") + File.separator + name;
