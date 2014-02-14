@@ -2,4 +2,4 @@ bin/
 *.DS_store
 clientLog.txt
 networkLog.txt
-networkLog.txt
+serverLog.txt
