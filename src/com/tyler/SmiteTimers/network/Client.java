@@ -9,7 +9,6 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.InetAddress;
 import java.net.Socket;
-import java.net.SocketException;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -20,7 +19,7 @@ public class Client {
 	private static final byte RESETTIMER=1;
 	private static final byte SENDMESSAGE=1;
 	private static final byte HEARTBEAT=2;
-	private static final byte RECONNECT=4;
+	//private static final byte RECONNECT=4;
 	
 	private ConnectionToServer server;
 	private Socket socket1;
@@ -50,81 +49,25 @@ public class Client {
 		} 
 		Thread startConnectionThread = new Thread()
 		{
+			boolean running=true;
 			public void run(){
-				try
-				{
-					Client.this.socket1 = new Socket(InetAddress.getByName(Client.this.ipAddr),Client.this.port);
-					Client.this.server = new ConnectionToServer(Client.this.socket1);
-					Client.this.messageHandling.start();
-					writer.write("Connection established to server \r\n");
-					writer.flush();
-				}
-				catch (IOException e)
-				{
-				}
-			}
-		};
-		startConnectionThread.start();
-		/*try
-		{
-			this.socket1 = new Socket(InetAddress.getByName(this.ipAddr),this.port);
-			this.server = new ConnectionToServer(socket1);
-			writer.write("Connection established to server \r\n");
-			writer.flush();
-		}
-		catch (IOException e)
-		{
-		}
-		messageHandling.start();*/
-/*		Thread resetConnectionThread = new Thread()
-		{
-			public void run()
-			{
-				boolean running = true;
-				while(running)
-				{
-					
-				}
-			}
-		}*/
-		/*Thread messageHandling = new Thread()  //Thread handles received messages from server
-		{
-			public void run()
-			{
-				boolean running = true;
 				while(running)
 				{
 					try
 					{
-						Message message = messages.take(); //Waits for a message to enter queue, then pops it.
-                        if(Client.this.timers.containsKey(message.id)) {
-                            Timer timer = Client.this.timers.get(message.id);
-                            timer.setState(message.state);
-                            timer.setTime(message.time);
-                        } else {
-                            // No idea what timer this goes to
-                            // TODO Put log message
-                        	try
-                        	{
-                        		writer.write("Have no timer for id: " + message.id);
-                        		writer.flush();
-                        	}
-                        	catch(IOException e)
-                        	{
-                        	}
-                        }
+						Client.this.socket1 = new Socket(InetAddress.getByName(Client.this.ipAddr),Client.this.port);
+						Client.this.server = new ConnectionToServer(Client.this.socket1);
+						Client.this.messageHandling.start();
+						writer.write("Connection established to server \r\n");
+						writer.flush();
 					}
-					catch(InterruptedException e)
+					catch (IOException e)
 					{
-						
 					}
 				}
 			}
 		};
-		messageHandling.setDaemon(true);
-		messageHandling.start();
-		*/
-		
+		startConnectionThread.start();
 	}
 	public boolean isConnected(){
 		return this.isConnected;
@@ -134,20 +77,32 @@ public class Client {
 		this.socket1=null;
 		this.server=null;
 		this.messageHandling.turnOff();
-		try
+		boolean running = true;
+		while(running)
 		{
-			this.socket1 = new Socket(InetAddress.getByName(this.ipAddr),this.port);
-			this.server = new ConnectionToServer(this.socket1);
-			this.messageHandling = new MessageHandlingThread();
-			this.messageHandling.start();
-			writer.write("Connection established to server \r\n");
-			writer.flush();
+			try
+			{
+				this.socket1 = new Socket(InetAddress.getByName(this.ipAddr),this.port);
+				this.server = new ConnectionToServer(this.socket1);
+				running=false;
+				this.messageHandling = new MessageHandlingThread();
+				this.messageHandling.start();
+				this.isConnected=true;
+				writer.write("Connection established to server \r\n");
+				writer.flush();
+			}
+			catch (IOException e)
+			{
+				try
+				{
+					Thread.sleep(3000);
+				}
+				catch(InterruptedException q)
+				{
+					
+				}
+			}
 		}
-		catch (IOException e)
-		{
-		}
-		//this.messageHandling = new MessageHandlingThread();
-		//messageHandling.start();
 	}
 	public void sendMessage(Message message)
 	{
@@ -210,7 +165,7 @@ public class Client {
 			this.socket=socket;
 			dOut=new DataOutputStream(this.socket.getOutputStream());
 			dIn=new DataInputStream(this.socket.getInputStream());
-			this.socket.setSoTimeout(30000);
+			this.socket.setSoTimeout(15000);
 			Thread read = new Thread(){  //Thread waits to receive message from server
 				private boolean running = true;
 				public void run(){
@@ -219,27 +174,19 @@ public class Client {
 					{
 						try
 						{
-							byte actionToPerform = dIn.readByte();//Will time out after 30 seconds.  Determines what action to perform.
+							byte actionToPerform = dIn.readByte();//Will time out after 15 seconds.  Determines what action to perform.
 							if(actionToPerform == RESETTIMER)
 							{
-								try
-								{
-								
 									int id = dIn.readInt();
 									int state = dIn.readInt();
 									long time = dIn.readLong();
 									writer.write("Message received id: " + id + " with time " +time+"\r\n");
 									writer.flush();
 									messages.add(new Message(id, state, time));
-								}
-								catch(IOException e)
-								{
-							
-								}
 							}
 						}
-						catch(SocketException e)//Will get called if readByte() times out.  Probably means connection was lost.
-						{
+						catch(IOException e)
+						{	
 							try
 							{
 								writer.write("Connection to server appears to be lost \r\n");
@@ -252,9 +199,6 @@ public class Client {
 							running=false;
 							Client.this.isConnected=false;
 							Client.this.resetConnection();
-						}
-						catch(IOException e)
-						{							
 						}
 					}
 				}
@@ -269,7 +213,7 @@ public class Client {
 					{
 						try
 						{
-							Thread.sleep(10000);
+							Thread.sleep(5000);
 						}
 						catch(InterruptedException e)
 						{

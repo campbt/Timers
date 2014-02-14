@@ -1,2 +1,5 @@
 bin/
 *.DS_store
+clientLog.txt
+networkLog.txt
+serverLog.txt
