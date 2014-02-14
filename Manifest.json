@@ -4,15 +4,15 @@
     "time":"seconds",
     "hidemode_hotkey":"0",
     "network_mode":"host",
-    "network_ip":"10.2.3.100",
-    "network_port":123,
+    "network_ip":"67.183.13.132",
+    "network_port":53762,
     "timers":[
         {
             "type":"timer",
             "id":1,
             "title":"Gold Fury",
             "duration":300,
-            "hotkey":"7",
+            "hotkey":"6",
             "icon":"goldfury",
             "alerts": [
                 { "type":"color", "time":"300", "color":"#CDEE69" },
@@ -26,7 +26,7 @@
             "id":2,
             "title":"Fire Giant",
             "duration":300,
-            "hotkey":"8",
+            "hotkey":"7",
             "icon":"firegiant",
             "alerts": [
                 { "type":"color", "time":"300", "color":"#CDEE69" },
@@ -40,7 +40,7 @@
             "id":3,
             "title":"Left Furies",
             "duration":120,
-            "hotkey":"S-7",
+            "hotkey":"8",
             "icon":"furies",
             "alerts": [
                 { "type":"color", "time":"120", "color":"#CDEE69" },
@@ -54,7 +54,7 @@
             "id":4,
             "title":"Right Furies",
             "duration":120,
-            "hotkey":"SC-7",
+            "hotkey":"9",
             "icon":"furies",
             "alerts": [
                 { "type":"color", "time":"120", "color":"#CDEE69" },
@@ -68,7 +68,7 @@
             "id":5,
             "title":"Speed Buff",
             "duration":240,
-            "hotkey":"7",
+            "hotkey":"S-6",
             "icon":"buff_orange",
             "alerts": [
                 { "type":"color", "time":"240", "color":"#CDEE69" },
@@ -82,7 +82,7 @@
             "id":6,
             "title":"Speed Buff",
             "duration":240,
-            "hotkey":"7",
+            "hotkey":"S-7",
             "icon":"buff_red",
             "alerts": [
                 { "type":"color", "time":"240", "color":"#CDEE69" },
@@ -96,7 +96,7 @@
             "id":7,
             "title":"Left Mana Buff",
             "duration":240,
-            "hotkey":"7",
+            "hotkey":"S-8",
             "icon":"buff_blue",
             "alerts": [
                 { "type":"color", "time":"240", "color":"#CDEE69" },
@@ -110,7 +110,7 @@
             "id":8,
             "title":"Right Mana Buff",
             "duration":240,
-            "hotkey":"7",
+            "hotkey":"S-9",
             "icon":"buff_blue",
             "alerts": [
                 { "type":"color", "time":"240", "color":"#CDEE69" },
