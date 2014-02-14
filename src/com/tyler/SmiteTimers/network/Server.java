@@ -9,7 +9,6 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -62,7 +61,6 @@ public class Server{
 					try
 					{
 						Socket socket1 = serverSocket.accept(); //When a client attempts to connect, this accepts the connection
-						//socket1.setKeepAlive(true);
 						writer.write("Connection established to" + socket1.getInetAddress().toString() + "\r\n");
 						writer.flush();
 						clientList.add(new ConnectionToClient(socket1)); //Adds new connection to list
@@ -82,10 +80,10 @@ public class Server{
 			{
 				while(true)
 				{
-						//sleep for 10 seconds, then send heart beat to all clients
+						//sleep for 5 seconds, then send heart beat to all clients
 					try
 					{
-						Thread.sleep(10000);
+						Thread.sleep(5000);
 					}
 					catch(InterruptedException e)
 					{
@@ -227,30 +225,17 @@ public class Server{
 								int id = dIn.readInt();
 								int state = dIn.readInt();
 								long time = dIn.readLong();
-								try
-								{
-									writer.write("Client has sent message: "+ id +" with time " + time + "\r\n");
-									writer.write("Client IP is: " + socket.getInetAddress().toString() +"\r\n");
-									writer.flush();
-								}
-								catch(IOException e){
-								
-								}
-								//TODO:
-								//sendByte(actionToPerform);
+
+								writer.write("Client has sent message: "+ id +" with time " + time + "\r\n");
+								writer.write("Client IP is: " + socket.getInetAddress().toString() +"\r\n");
+								writer.flush();
+
 								addMessage(new Message(id, state, time, socket.getInetAddress().toString()));
-								//messages.add(new Message(id, state, time, socket.getInetAddress().toString()));
-								try
-								{
-									writer.write("Size of messages = " + messages.size() + "\r\n");
-									writer.flush();
-								}
-								catch(IOException e){
-								
-								}
+								writer.write("Size of messages = " + messages.size() + "\r\n");
+								writer.flush();
 							}
 						}
-						catch(SocketException e)
+						catch (IOException e)
 						{
 							try
 							{
@@ -263,10 +248,6 @@ public class Server{
 							{
 								
 							}
-						}
-						catch (IOException e)
-						{
-							
 						}
 					}
 				}
