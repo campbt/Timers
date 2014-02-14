@@ -135,7 +135,7 @@ public class Server{
 								{
 									timer.setState(message.state);
 									timer.setTime(message.time);
-									sendMessage(message,null);
+									sendMessage(message,"");
 								}
 							}
 							else if (message.actionToPerform==BUILDTIMERLIST)
