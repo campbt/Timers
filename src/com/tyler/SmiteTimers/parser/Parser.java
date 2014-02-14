@@ -39,6 +39,7 @@ public class Parser {
     private static final String WINDOW_FORMAT_DEFAULT = "seconds";
     private static final String WINDOW_TIMERS = "timers";
     private static final String WINDOW_HIDEMODE_HOTKEY = "hidemode_hotkey";
+    private static final String WINDOW_CLOSE_HOTKEY = "close_hotkey";
     private static final String NETWORK_MODE = "network_mode";
     private static final String NETWORK_MODE_HOST = "host";
     private static final String NETWORK_MODE_CLIENT = "client";
@@ -78,6 +79,7 @@ public class Parser {
             while(cin.hasNext()) {
                 builder.append(cin.nextLine());
             }
+            cin.close();
             return parseJson(builder.toString());
         } catch(Exception e) {
             e.printStackTrace();
@@ -101,6 +103,12 @@ public class Parser {
         boolean useSeconds = false;
         if(timeFormat.equals("seconds")) {
             useSeconds = true;
+        }
+
+        // Close hotkey stuff
+        if(object.has(WINDOW_CLOSE_HOTKEY)) {
+            String closeHotkey = object.getString(WINDOW_CLOSE_HOTKEY);
+            timerWindow.setCloseHotkey(convertStringToNativeKey(closeHotkey));
         }
 
         // Hidemode hotkey stuff

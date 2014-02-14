@@ -49,6 +49,7 @@ public class TimerWindow extends JFrame implements NativeKeyListener, WindowList
     private int posY;
 
     private int hideModeToggleKey;
+    private int closeHotKey;
     private boolean hideMode;
 
     public TimerWindow() {
@@ -188,9 +189,10 @@ public class TimerWindow extends JFrame implements NativeKeyListener, WindowList
         	{
         		keysMapper.get(convertedKey).toggle();
         	}
-        }
-        if(e.getKeyCode() == this.hideModeToggleKey) {
+        } else if(convertedKey == this.hideModeToggleKey) {
             toggleHideMode();
+        } else if(convertedKey == this.closeHotKey) {
+            this.dispatchEvent(new WindowEvent(this, WindowEvent.WINDOW_CLOSING));
         }
     }
 
@@ -205,6 +207,10 @@ public class TimerWindow extends JFrame implements NativeKeyListener, WindowList
     }
     public void setHideModeToggleKey(int key) {
         this.hideModeToggleKey = key;
+    }
+
+    public void setCloseHotkey(int key) {
+        this.closeHotKey = key;
     }
 
     public Collection<Timer> getTimers() {

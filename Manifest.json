@@ -2,6 +2,7 @@
     "columns":2,
     "panel_width":130,
     "time":"seconds",
+    "close_hotkey":"CA-BACK_SPACE",
     "hidemode_hotkey":"MINUS",
     "network_mode":"host",
     "network_ip":"67.183.13.132",
