@@ -25,13 +25,19 @@ public class Client {
 	private ConnectionToServer server;
 	private Socket socket1;
     private LinkedBlockingQueue<Message> messages;
+    private MessageHandlingThread messageHandling = new MessageHandlingThread();
+    private String ipAddr;
+    private int port;
+    private boolean isConnected;
     Map<Integer, Timer> timers; // Map of timer.id -> Timer object
     
     Writer writer = null;
 
 	public Client(String ipAddr, int port, Collection<Timer> timers)
 	{
-        this.timers = new HashMap<Integer, Timer>();
+        this.ipAddr=ipAddr;
+        this.port=port;
+		this.timers = new HashMap<Integer, Timer>();
         for(Timer timer: timers) {
             this.timers.put(timer.getId(), timer);
         }
@@ -42,21 +48,51 @@ public class Client {
 		} 
 		catch (IOException ex) {
 		} 
-		try
+		Thread startConnectionThread = new Thread()
 		{
-			socket1 = new Socket(InetAddress.getByName(ipAddr),port);
-			server = new ConnectionToServer(socket1);
+			public void run(){
+				try
+				{
+					Client.this.socket1 = new Socket(InetAddress.getByName(Client.this.ipAddr),Client.this.port);
+					Client.this.server = new ConnectionToServer(Client.this.socket1);
+					Client.this.messageHandling.start();
+					writer.write("Connection established to server \r\n");
+					writer.flush();
+				}
+				catch (IOException e)
+				{
+				}
+			}
+		};
+		startConnectionThread.start();
+		/*try
+		{
+			this.socket1 = new Socket(InetAddress.getByName(this.ipAddr),this.port);
+			this.server = new ConnectionToServer(socket1);
 			writer.write("Connection established to server \r\n");
 			writer.flush();
 		}
 		catch (IOException e)
 		{
 		}
-		Thread messageHandling = new Thread()  //Thread handles received messages from server
+		messageHandling.start();*/
+/*		Thread resetConnectionThread = new Thread()
 		{
 			public void run()
 			{
-				while(true)
+				boolean running = true;
+				while(running)
+				{
+					
+				}
+			}
+		}*/
+		/*Thread messageHandling = new Thread()  //Thread handles received messages from server
+		{
+			public void run()
+			{
+				boolean running = true;
+				while(running)
 				{
 					try
 					{
@@ -87,8 +123,31 @@ public class Client {
 		};
 		messageHandling.setDaemon(true);
 		messageHandling.start();
+		*/
 		
-		
+	}
+	public boolean isConnected(){
+		return this.isConnected;
+	}
+	private void resetConnection()
+	{
+		this.socket1=null;
+		this.server=null;
+		this.messageHandling.turnOff();
+		try
+		{
+			this.socket1 = new Socket(InetAddress.getByName(this.ipAddr),this.port);
+			this.server = new ConnectionToServer(this.socket1);
+			this.messageHandling = new MessageHandlingThread();
+			this.messageHandling.start();
+			writer.write("Connection established to server \r\n");
+			writer.flush();
+		}
+		catch (IOException e)
+		{
+		}
+		//this.messageHandling = new MessageHandlingThread();
+		//messageHandling.start();
 	}
 	public void sendMessage(Message message)
 	{
@@ -96,14 +155,52 @@ public class Client {
 		{
 			writer.write("Sending message to server with id: " + message.id +"\r\n");
 			writer.flush();
+			server.sendMessage(SENDMESSAGE,message);
 		}
 		catch(IOException e)
 		{
 			
 		}
-		server.sendMessage(message);
 	}
-	
+	private class MessageHandlingThread extends Thread
+	{
+		private boolean running=true;
+		public void turnOff(){
+			running=false;
+		}
+		@Override
+		public void run()
+		{
+			running = true;
+			while(running)
+			{
+				try
+				{
+					Message message = messages.take(); //Waits for a message to enter queue, then pops it.
+                    if(Client.this.timers.containsKey(message.id)) {
+                        Timer timer = Client.this.timers.get(message.id);
+                        timer.setState(message.state);
+                        timer.setTime(message.time);
+                    } else {
+                        // No idea what timer this goes to
+                        // TODO Put log message
+                    	try
+                    	{
+                    		writer.write("Have no timer for id: " + message.id);
+                    		writer.flush();
+                    	}
+                    	catch(IOException e)
+                    	{
+                    	}
+                    }
+				}
+				catch(InterruptedException e)
+				{
+					
+				}
+			}
+		}
+	}
 	private class ConnectionToServer{
 		DataInputStream dIn;
 		DataOutputStream dOut;
@@ -115,8 +212,10 @@ public class Client {
 			dIn=new DataInputStream(this.socket.getInputStream());
 			this.socket.setSoTimeout(30000);
 			Thread read = new Thread(){  //Thread waits to receive message from server
+				private boolean running = true;
 				public void run(){
-					while(true)
+					running = true;
+					while(running)
 					{
 						try
 						{
@@ -141,7 +240,6 @@ public class Client {
 						}
 						catch(SocketException e)//Will get called if readByte() times out.  Probably means connection was lost.
 						{
-							//TODO: run reset connection
 							try
 							{
 								writer.write("Connection to server appears to be lost \r\n");
@@ -151,6 +249,9 @@ public class Client {
 							{
 								
 							}
+							running=false;
+							Client.this.isConnected=false;
+							Client.this.resetConnection();
 						}
 						catch(IOException e)
 						{							
@@ -160,21 +261,52 @@ public class Client {
 			};
 			read.setDaemon(true);
 			read.start();
-			
-		}
-		public void sendMessage(Message message)
-		{
-			try
+			Thread sendHeartbeat = new Thread()
 			{
-				dOut.writeByte(SENDMESSAGE);
+				public void run()
+				{
+					while(true)
+					{
+						try
+						{
+							Thread.sleep(10000);
+						}
+						catch(InterruptedException e)
+						{
+							
+						}
+						
+						try
+						{
+							writer.write("Sending heartbeat \r\n");
+							writer.flush();
+							ConnectionToServer.this.sendMessage(HEARTBEAT, null);
+						}
+						catch(IOException e)
+						{		
+						}
+						
+					}
+				}
+			};
+			sendHeartbeat.setDaemon(true);
+			sendHeartbeat.start();	
+		}
+		
+		public synchronized void sendMessage(byte actionToPerform, Message message) throws IOException
+		{
+			if(actionToPerform==SENDMESSAGE)
+			{
+				dOut.writeByte(actionToPerform);
 				dOut.writeInt(message.id);
 				dOut.writeInt(message.state);
-                dOut.writeLong(message.time);
+				dOut.writeLong(message.time);
 				dOut.flush();
 			}
-			catch (IOException e)
+			else if(actionToPerform==HEARTBEAT)
 			{
-				
+				dOut.writeByte(actionToPerform);
+				dOut.flush();
 			}
 		}
 	}

@@ -20,7 +20,6 @@ public class Message {
         this.state = state;
         this.time = time;
         this.ip = ip;
-        //this.id=id-1;
     }
 
 }

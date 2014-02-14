@@ -70,7 +70,26 @@ public class Network implements Timer.StateChangedListener {
 			client.sendMessage(message);
 		}
 	}
-
+	public boolean isConnected()
+	{
+		if(this.isServer)
+		{
+			return true;
+		}
+		else
+		{
+			return client.isConnected();
+		}
+	}
+	public int HowManyConnections(){
+		if(this.isServer){
+			return server.HowManyConnections();
+		}
+		else
+		{
+			return (client.isConnected() ? 1:0);
+		}
+	}
 	@Override
 	public void stateChanged(Timer timer){
 		try{

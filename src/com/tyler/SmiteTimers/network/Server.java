@@ -9,6 +9,7 @@ import java.io.OutputStreamWriter;
 import java.io.Writer;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.net.SocketException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
@@ -61,7 +62,7 @@ public class Server{
 					try
 					{
 						Socket socket1 = serverSocket.accept(); //When a client attempts to connect, this accepts the connection
-						socket1.setKeepAlive(true);
+						//socket1.setKeepAlive(true);
 						writer.write("Connection established to" + socket1.getInetAddress().toString() + "\r\n");
 						writer.flush();
 						clientList.add(new ConnectionToClient(socket1)); //Adds new connection to list
@@ -75,13 +76,13 @@ public class Server{
 		};
 		addClients.setDaemon(true);
 		addClients.start();
-		Thread checkConnectionStatus = new Thread()
+		Thread sendHeartbeat = new Thread()
 		{
 			public void run()
 			{
 				while(true)
 				{
-						//TODO: sleep for 10 seconds, then send byte to all clients
+						//sleep for 10 seconds, then send heart beat to all clients
 					try
 					{
 						Thread.sleep(10000);
@@ -105,7 +106,7 @@ public class Server{
 				}
 			}
 		};
-		checkConnectionStatus.start();
+		sendHeartbeat.start();
 		Thread messageHandling = new Thread()  //This thread waits for a new message to enter the queue from any client
 		{ 
 			public void run()
@@ -197,6 +198,9 @@ public class Server{
 			
 		}
 	}
+	public int HowManyConnections(){
+		return this.clientList.size(); 
+	}
 	private class ConnectionToClient{
 		Socket socket;
 		DataOutputStream dOut;
@@ -206,11 +210,14 @@ public class Server{
 			socket = socket2;
 			dOut = new DataOutputStream(this.socket.getOutputStream());
 			dIn = new DataInputStream(this.socket.getInputStream());
+			this.socket.setSoTimeout(30000);
 			Thread read = new Thread() //This thread waits for a client to send a message, then adds it to the queue
 			{
+				private boolean running = true;
 				public void run()
 				{
-					while(true)
+					running=true;
+					while(running)
 					{
 						try
 						{
@@ -243,6 +250,20 @@ public class Server{
 								}
 							}
 						}
+						catch(SocketException e)
+						{
+							try
+							{
+								writer.write("Connection to a client appears to be lost \r\n");
+								writer.flush();
+								running=false;
+								Server.this.clientList.remove(ConnectionToClient.this);
+							}
+							catch(IOException q)
+							{
+								
+							}
+						}
 						catch (IOException e)
 						{
 							
@@ -262,7 +283,7 @@ public class Server{
 				dOut.writeLong(message.time);
 				dOut.flush();
 			}
-			else if (actionToPerform==HEARTBEAT)
+			else if (actionToPerform == HEARTBEAT)
 			{
 				dOut.writeByte(HEARTBEAT);
 				dOut.flush();
