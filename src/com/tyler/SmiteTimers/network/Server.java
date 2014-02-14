@@ -21,12 +21,14 @@ public class Server{
 	//private static final byte RESETTIMER = 1;
 	private static final byte SENDMESSAGE = 1;
 	private static final byte HEARTBEAT = 2;
+	private static final byte BUILDTIMERLIST = 3;
 	
 	private ArrayList<ConnectionToClient> clientList;
 	private LinkedBlockingQueue<Message> messages;
 	private ServerSocket serverSocket;
 	Map<Integer, Timer> timers; // Map of timer.id -> Timer object
-
+	//TODO: Use Map instead of ArrayList for clientList
+	//Map<String, ConnectionToClient> clientList;
     Writer writer = null;
     int messageNumber;
     
@@ -45,6 +47,7 @@ public class Server{
 		} 
 		clientList = new ArrayList<ConnectionToClient>();
 		messages = new LinkedBlockingQueue<Message>();
+		//clientMap = new HashMap<String, ConnectionToClient>();
 		try
 		{
 			serverSocket = new ServerSocket(port);
@@ -63,7 +66,7 @@ public class Server{
 						Socket socket1 = serverSocket.accept(); //When a client attempts to connect, this accepts the connection
 						writer.write("Connection established to" + socket1.getInetAddress().toString() + "\r\n");
 						writer.flush();
-						clientList.add(new ConnectionToClient(socket1)); //Adds new connection to list
+						clientList.add(new ConnectionToClient(socket1));
 					}
 					catch(IOException e)
 					{
@@ -126,12 +129,29 @@ public class Server{
 						}
 						if(Server.this.timers.containsKey(message.id)) 
 						{
-							 Timer timer = Server.this.timers.get(message.id);
-	                         timer.setState(message.state);
-	                         timer.setTime(message.time);
+							Timer timer = Server.this.timers.get(message.id);
+							if(message.actionToPerform==SENDMESSAGE){
+								if(!timer.RecentlyStarted())
+								{
+									timer.setState(message.state);
+									timer.setTime(message.time);
+									sendMessage(message,"");
+								}
+							}
+							else if (message.actionToPerform==BUILDTIMERLIST)
+							{
+								sendMessage(new Message(message.actionToPerform,timer.getId(),timer.getState(),timer.getTime(),message.ip),message.ip);
+							}
 	                    } 
 						else 
 	                    {
+							if(message.actionToPerform==BUILDTIMERLIST)
+							{
+								Timer timer = new Timer(message.initialTime);
+								timer.setId(message.id);
+								timer.setState(message.state);
+								Server.this.timers.put(message.id, timer);
+							}
 	                            // No idea what timer this goes to
 	                            // TODO Put log message
 							try
@@ -144,7 +164,7 @@ public class Server{
 								
 							}
 	                    }
-						sendMessage(message);				
+						//sendMessage(message);				
 					}
 					catch(InterruptedException e)
 					{
@@ -162,32 +182,53 @@ public class Server{
 		messageHandling.start();		
 	}
 	
-	public void sendMessage (Message message) //If reset is originating from a client, it sends through this method
+	public void sendMessage (Message message,String ip) //If reset is originating from a client, it sends through this method
 	{
 		try
 		{
-			byte actionToPerform = SENDMESSAGE;
-			for(ConnectionToClient client : clientList)
-			{	
-				//if(message.ip != null && !(client.socket.getInetAddress().toString().equals(message.ip))){
-				try{
-					writer.write("Source: " +message.ip+"\r\n");
-					writer.write("Destination: " + client.socket.getInetAddress().toString()+"\r\n");
-					writer.flush();
-				}
-				catch(IOException e){
-					
-				}
-				if(!(client.socket.getInetAddress().toString().equals(message.ip))){
-					try{
-						writer.write("Forwarding message to: "+ client.socket.getInetAddress().toString() + "\r\n");
-						writer.flush();
-					}
-					catch(IOException e)
-					{
+			if(ip=="")
+			{
+				
+				if(message.actionToPerform==SENDMESSAGE)
+				{
+					for(ConnectionToClient client : clientList)
+					{	
+						//if(message.ip != null && !(client.socket.getInetAddress().toString().equals(message.ip))){
+						try
+						{
+							writer.write("Source: " +message.ip+"\r\n");
+							writer.write("Destination: " + client.socket.getInetAddress().toString()+"\r\n");
+							writer.flush();
+						}
+						catch(IOException e)
+						{
+						}
+						if(!(client.socket.getInetAddress().toString().equals(message.ip)))
+						{
+							try{
+								writer.write("Forwarding message to: "+ client.socket.getInetAddress().toString() + "\r\n");
+								writer.flush();
+							}
+							catch(IOException e)
+							{
 						
+							}
+							client.send(message.actionToPerform,message);
+						}
 					}
-					client.send(actionToPerform,message);
+				}
+			}
+			else if (ip!="")
+			{
+				if(message.actionToPerform==BUILDTIMERLIST)
+				{
+					for(ConnectionToClient client: clientList)
+					{
+						if(client.socket.getInetAddress().toString().equals(ip))
+						{
+							client.send(SENDMESSAGE,message);
+						}
+					}
 				}
 			}
 		}
@@ -199,6 +240,7 @@ public class Server{
 	public int HowManyConnections(){
 		return this.clientList.size(); 
 	}
+	
 	private class ConnectionToClient{
 		Socket socket;
 		DataOutputStream dOut;
@@ -208,7 +250,7 @@ public class Server{
 			socket = socket2;
 			dOut = new DataOutputStream(this.socket.getOutputStream());
 			dIn = new DataInputStream(this.socket.getInputStream());
-			this.socket.setSoTimeout(30000);
+			this.socket.setSoTimeout(15000);
 			Thread read = new Thread() //This thread waits for a client to send a message, then adds it to the queue
 			{
 				private boolean running = true;
@@ -220,7 +262,7 @@ public class Server{
 						try
 						{
 							byte actionToPerform = dIn.readByte();
-							if(actionToPerform==SENDMESSAGE)
+							if(actionToPerform == SENDMESSAGE)
 							{
 								int id = dIn.readInt();
 								int state = dIn.readInt();
@@ -230,9 +272,18 @@ public class Server{
 								writer.write("Client IP is: " + socket.getInetAddress().toString() +"\r\n");
 								writer.flush();
 
-								addMessage(new Message(id, state, time, socket.getInetAddress().toString()));
+								addMessage(new Message(actionToPerform,id, state, time, socket.getInetAddress().toString()));
 								writer.write("Size of messages = " + messages.size() + "\r\n");
 								writer.flush();
+							}
+							else if (actionToPerform == BUILDTIMERLIST)
+							{
+								int id = dIn.readInt();
+								int state = dIn.readInt();
+								long initialTime = dIn.readLong();
+								long time = dIn.readLong();
+								
+								addMessage(new Message(actionToPerform,id,state,initialTime,time,socket.getInetAddress().toString()));
 							}
 						}
 						catch (IOException e)
@@ -257,14 +308,14 @@ public class Server{
 		}
 		public synchronized void send(byte actionToPerform, Message message) throws IOException
 		{
-			if(actionToPerform == SENDMESSAGE){
+			if(message.actionToPerform == SENDMESSAGE){
 				dOut.writeByte(SENDMESSAGE);
 				dOut.writeInt(message.id);
 				dOut.writeInt(message.state);
 				dOut.writeLong(message.time);
 				dOut.flush();
 			}
-			else if (actionToPerform == HEARTBEAT)
+			else if (message.actionToPerform == HEARTBEAT)
 			{
 				dOut.writeByte(HEARTBEAT);
 				dOut.flush();

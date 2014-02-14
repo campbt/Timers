@@ -184,7 +184,10 @@ public class TimerWindow extends JFrame implements NativeKeyListener, WindowList
     public void nativeKeyReleased(NativeKeyEvent e) {
         int convertedKey = Parser.convertNativeKey(e);
         if(keysMapper.containsKey(convertedKey)) {
-            keysMapper.get(convertedKey).toggle();
+        	if(!(keysMapper.get(convertedKey).RecentlyStarted()))
+        	{
+        		keysMapper.get(convertedKey).toggle();
+        	}
         }
         if(e.getKeyCode() == this.hideModeToggleKey) {
             toggleHideMode();
