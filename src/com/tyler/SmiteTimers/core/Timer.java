@@ -72,7 +72,6 @@ public class Timer {
     }
     
     public void alertStateChangedListeners() {
-        System.out.println("AlertStateChanged: " + this.state);
         for(StateChangedListener listener: this.toggleListeners) {
             listener.stateChanged(this);
         }

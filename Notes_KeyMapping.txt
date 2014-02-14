@@ -11,6 +11,12 @@ Examples:
 "hotkey":"S-NUMPAD3" (Shift + Number pad's 3)
 "hotkey":"SC-NUMPAD3" (Shift + Ctrl + Number pad's 3)
 
+Supported Modifies:
+S (Shift)
+C (Ctrl)
+A (Alt)
+M (Meta / Windows Key)
+
 Supported KeyCodes:
 ENTER
 BACK_SPACE

@@ -189,7 +189,6 @@ public class Parser {
                 panel.addColorAlert(time, parseColor(colorString));
             } else if(ALERT_SOUND_TYPE.equals(type)) {
                 // Sound Type
-                System.out.println("Sound Found");
                 String name = alert.getString(ALERT_SOUND_SRC);
                 String filename = "src/com/tyler/SmiteTimers/sounds/" + name + ".wav";
                 InputStream in;

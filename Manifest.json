@@ -1,102 +1,31 @@
 {
     "columns":2,
-    "panel_width":120,
+    "panel_width":130,
     "time":"seconds",
-    "hidemode_hotkey":"0",
+    "hidemode_hotkey":"MINUS",
     "network_mode":"host",
     "network_ip":"67.183.13.132",
     "network_port":53762,
     "timers":[
         {
             "type":"timer",
-            "id":1,
-            "title":"Gold Fury",
-            "duration":300,
-            "hotkey":"6",
-            "icon":"goldfury",
-            "alerts": [
-                { "type":"color", "time":"300", "color":"#CDEE69" },
-                { "type":"sound", "time":"299", "src":"beep" },
-                { "type":"color", "time":"299", "color":"white" },
-                { "type":"color", "time":"60", "color":"#FFE377" },
-                { "type":"color", "time":"30", "color":"#E09690" }
-            ]
-        },
-        {
-            "type":"timer",
-            "id":2,
-            "title":"Fire Giant",
-            "duration":300,
-            "hotkey":"7",
-            "icon":"firegiant",
-            "alerts": [
-                { "type":"color", "time":"300", "color":"#CDEE69" },
-                { "type":"sound", "time":"299", "src":"beep2.wav" },
-                { "type":"color", "time":"299", "color":"white" },
-                { "type":"color", "time":"60", "color":"#FFE377" },
-                { "type":"color", "time":"30", "color":"#E09690" }
-            ]
-        },
-        {
-            "type":"timer",
-            "id":3,
-            "title":"Left Furies",
-            "duration":120,
-            "hotkey":"8",
-            "icon":"furies",
-            "alerts": [
-                { "type":"color", "time":"120", "color":"#CDEE69" },
-                { "type":"color", "time":"119", "color":"white" },
-                { "type":"color", "time":"40", "color":"#FFE377" },
-                { "type":"color", "time":"20", "color":"#E09690" }
-            ]
-        },
-        {
-            "type":"timer",
-            "id":4,
-            "title":"Right Furies",
-            "duration":120,
-            "hotkey":"9",
-            "icon":"furies",
-            "alerts": [
-                { "type":"color", "time":"120", "color":"#CDEE69" },
-                { "type":"color", "time":"119", "color":"white" },
-                { "type":"color", "time":"40", "color":"#FFE377" },
-                { "type":"color", "time":"20", "color":"#E09690" }
-            ]
-        },
-        {
-            "type":"timer",
-            "id":5,
-            "title":"Speed Buff",
-            "duration":240,
-            "hotkey":"S-6",
-            "icon":"buff_orange",
-            "alerts": [
-                { "type":"color", "time":"240", "color":"#CDEE69" },
-                { "type":"color", "time":"239", "color":"white" },
-                { "type":"color", "time":"40", "color":"#FFE377" },
-                { "type":"color", "time":"20", "color":"#E09690" }
-            ]
-        },
-        {
-            "type":"timer",
-            "id":6,
-            "title":"Speed Buff",
+            "id":10,
+            "title":"(S-7) L-Mana",
             "duration":240,
             "hotkey":"S-7",
-            "icon":"buff_red",
+            "icon":"buff_blue",
             "alerts": [
                 { "type":"color", "time":"240", "color":"#CDEE69" },
                 { "type":"color", "time":"239", "color":"white" },
                 { "type":"color", "time":"40", "color":"#FFE377" },
-                { "type":"color", "time":"20", "color":"#E09690" }
+                { "type":"color", "time":"20", "color":"#E09690" },
+                { "type":"sound", "time":"20", "src":"beep" }
             ]
         },
         {
             "type":"timer",
-            "id":7,
-            "title":"Left Mana Buff",
+            "id":11,
+            "title":"(S-8) R-Mana",
             "duration":240,
             "hotkey":"S-8",
             "icon":"buff_blue",
@@ -104,21 +33,158 @@
                 { "type":"color", "time":"240", "color":"#CDEE69" },
                 { "type":"color", "time":"239", "color":"white" },
                 { "type":"color", "time":"40", "color":"#FFE377" },
-                { "type":"color", "time":"20", "color":"#E09690" }
+                { "type":"color", "time":"20", "color":"#E09690" },
+                { "type":"sound", "time":"20", "src":"beep" }
             ]
         },
         {
             "type":"timer",
-            "id":8,
-            "title":"Right Mana Buff",
+            "id":13,
+            "title":"(S-9) Speed",
             "duration":240,
             "hotkey":"S-9",
+            "icon":"buff_orange",
+            "alerts": [
+                { "type":"color", "time":"240", "color":"#CDEE69" },
+                { "type":"color", "time":"239", "color":"white" },
+                { "type":"color", "time":"40", "color":"#FFE377" },
+                { "type":"color", "time":"20", "color":"#E09690" },
+                { "type":"sound", "time":"20", "src":"beep" }
+            ]
+        },
+        {
+            "type":"timer",
+            "id":12,
+            "title":"(S-0) Damage",
+            "duration":240,
+            "hotkey":"S-0",
+            "icon":"buff_red",
+            "alerts": [
+                { "type":"color", "time":"240", "color":"#CDEE69" },
+                { "type":"color", "time":"239", "color":"white" },
+                { "type":"color", "time":"40", "color":"#FFE377" },
+                { "type":"color", "time":"20", "color":"#E09690" },
+                { "type":"sound", "time":"20", "src":"beep" }
+            ]
+        },
+        {
+            "type":"timer",
+            "id":1,
+            "title":"(S-5) Gold Fury",
+            "duration":300,
+            "hotkey":"S-5",
+            "icon":"goldfury",
+            "alerts": [
+                { "type":"color", "time":"300", "color":"#CDEE69" },
+                { "type":"color", "time":"299", "color":"white" },
+                { "type":"color", "time":"60", "color":"#FFE377" },
+                { "type":"color", "time":"30", "color":"#E09690" },
+                { "type":"sound", "time":"30", "src":"beep" }
+            ]
+        },
+        {
+            "type":"timer",
+            "id":2,
+            "title":"(S-6) Fire Giant",
+            "duration":300,
+            "hotkey":"S-6",
+            "icon":"firegiant",
+            "alerts": [
+                { "type":"color", "time":"300", "color":"#CDEE69" },
+                { "type":"color", "time":"299", "color":"white" },
+                { "type":"color", "time":"60", "color":"#FFE377" },
+                { "type":"color", "time":"30", "color":"#E09690" },
+                { "type":"sound", "time":"30", "src":"beep" }
+            ]
+        },
+        {
+            "type":"timer",
+            "id":3,
+            "title":"(5) Left Furies",
+            "duration":120,
+            "hotkey":"5",
+            "icon":"furies",
+            "alerts": [
+                { "type":"color", "time":"120", "color":"#CDEE69" },
+                { "type":"color", "time":"119", "color":"white" },
+                { "type":"color", "time":"40", "color":"#FFE377" },
+                { "type":"color", "time":"20", "color":"#E09690" },
+                { "type":"sound", "time":"20", "src":"beep" }
+            ]
+        },
+        {
+            "type":"timer",
+            "id":4,
+            "title":"(6) Right Furies",
+            "duration":120,
+            "hotkey":"6",
+            "icon":"furies",
+            "alerts": [
+                { "type":"color", "time":"120", "color":"#CDEE69" },
+                { "type":"color", "time":"119", "color":"white" },
+                { "type":"color", "time":"40", "color":"#FFE377" },
+                { "type":"color", "time":"20", "color":"#E09690" },
+                { "type":"sound", "time":"20", "src":"beep" }
+            ]
+        },
+        {
+            "type":"timer",
+            "id":5,
+            "title":"(9) Speed",
+            "duration":240,
+            "hotkey":"9",
+            "icon":"buff_orange",
+            "alerts": [
+                { "type":"color", "time":"240", "color":"#CDEE69" },
+                { "type":"color", "time":"239", "color":"white" },
+                { "type":"color", "time":"40", "color":"#FFE377" },
+                { "type":"color", "time":"20", "color":"#E09690" },
+                { "type":"sound", "time":"20", "src":"beep" }
+            ]
+        },
+        {
+            "type":"timer",
+            "id":6,
+            "title":"(0) Damage",
+            "duration":240,
+            "hotkey":"0",
+            "icon":"buff_red",
+            "alerts": [
+                { "type":"color", "time":"240", "color":"#CDEE69" },
+                { "type":"color", "time":"239", "color":"white" },
+                { "type":"color", "time":"40", "color":"#FFE377" },
+                { "type":"color", "time":"20", "color":"#E09690" },
+                { "type":"sound", "time":"20", "src":"beep" }
+            ]
+        },
+        {
+            "type":"timer",
+            "id":7,
+            "title":"(7) L-Mana",
+            "duration":240,
+            "hotkey":"7",
             "icon":"buff_blue",
             "alerts": [
                 { "type":"color", "time":"240", "color":"#CDEE69" },
                 { "type":"color", "time":"239", "color":"white" },
                 { "type":"color", "time":"40", "color":"#FFE377" },
-                { "type":"color", "time":"20", "color":"#E09690" }
+                { "type":"color", "time":"20", "color":"#E09690" },
+                { "type":"sound", "time":"20", "src":"beep" }
+            ]
+        },
+        {
+            "type":"timer",
+            "id":8,
+            "title":"(8) R-Mana",
+            "duration":240,
+            "hotkey":"8",
+            "icon":"buff_blue",
+            "alerts": [
+                { "type":"color", "time":"240", "color":"#CDEE69" },
+                { "type":"color", "time":"239", "color":"white" },
+                { "type":"color", "time":"40", "color":"#FFE377" },
+                { "type":"color", "time":"20", "color":"#E09690" },
+                { "type":"sound", "time":"20", "src":"beep" }
             ]
         }
     ]
