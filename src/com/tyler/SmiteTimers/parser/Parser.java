@@ -2,6 +2,8 @@ package com.tyler.SmiteTimers.parser;
 
 import java.awt.Color;
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.InputStream;
 import java.io.PrintWriter;
 import java.io.StringWriter;
 import java.lang.reflect.Field;
@@ -17,6 +19,10 @@ import org.jnativehook.keyboard.NativeKeyEvent;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import sun.audio.AudioDataStream;
+import sun.audio.AudioStream;
+import sun.audio.ContinuousAudioDataStream;
 
 import com.tyler.SmiteTimers.core.Timer;
 import com.tyler.SmiteTimers.network.Network;
@@ -50,9 +56,11 @@ public class Parser {
 
     // Alerts
     private static final String ALERT_TYPE = "type";
+    private static final String ALERT_TIME= "time";
     private static final String ALERT_COLOR_TYPE = "color";
-    private static final String ALERT_COLOR_TIME = "time";
     private static final String ALERT_COLOR_COLOR = "color";
+    private static final String ALERT_SOUND_TYPE = "sound";
+    private static final String ALERT_SOUND_SRC = "src";
 
     // Keycode mapper
     private static Map<String, Integer> keyToKeyCodeMap;
@@ -171,14 +179,42 @@ public class Parser {
         for(int i = 0; i < alerts.length(); i++) {
             JSONObject alert = alerts.getJSONObject(i);
             String type = alert.getString(ALERT_TYPE);
+            int time = alert.getInt(ALERT_TIME);
+            if(useSeconds) {
+                time *= 1000; // Convert to milliseconds
+            }
             if(ALERT_COLOR_TYPE.equals(type)) {
                 // Color Type
-                int time = alert.getInt(ALERT_COLOR_TIME);
-                if(useSeconds) {
-                    time *= 1000; // Convert to milliseconds
-                }
                 String colorString = alert.getString(ALERT_COLOR_COLOR);
                 panel.addColorAlert(time, parseColor(colorString));
+            } else if(ALERT_SOUND_TYPE.equals(type)) {
+                // Sound Type
+                System.out.println("Sound Found");
+                String name = alert.getString(ALERT_SOUND_SRC);
+                String filename = "src/com/tyler/SmiteTimers/sounds/" + name + ".wav";
+                InputStream in;
+                try {
+                    in = new FileInputStream(new File(filename));
+                } catch (Exception e) {
+                    try {
+                        filename = System.getProperty("user.dir") + File.separator + name;
+                        System.out.println(filename);
+                        in = new FileInputStream(new File(filename));
+                    } catch (Exception e2) {
+                        e2.printStackTrace();
+                        throw new JSONException("Couldn't find file for sound: " + name);
+                    }
+                }
+                try {
+                    final AudioStream as = new AudioStream(in);
+                    final AudioDataStream cas = new AudioDataStream(as.getData());
+                    as.close();
+                    panel.addSoundAlert(time, cas);
+                } catch (Exception e) {
+                    e.printStackTrace();
+                }
+            } else {
+                throw new JSONException("Unknown Alert Type: " + type);
             }
         }
 

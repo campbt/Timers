@@ -14,6 +14,10 @@ import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.SpringLayout;
 
+import sun.audio.AudioDataStream;
+import sun.audio.AudioPlayer;
+import sun.audio.ContinuousAudioDataStream;
+
 import com.tyler.SmiteTimers.core.Alert;
 import com.tyler.SmiteTimers.core.Alert.AlertTriggeredListener;
 import com.tyler.SmiteTimers.core.Timer;
@@ -108,6 +112,16 @@ public class TimerPanel extends JPanel implements Timer.TimeUpdatedListener {
             @Override
             public void alertTriggered(Alert alert) {
                 TimerPanel.this.timerText.setForeground(color);
+            }
+        };
+        this.timer.addAlert(new Alert(timeToTrigger, listener));
+    }
+
+    public void addSoundAlert(long timeToTrigger, final AudioDataStream cas) {
+        AlertTriggeredListener listener = new AlertTriggeredListener() {
+            @Override
+            public void alertTriggered(Alert alert) {
+                AudioPlayer.player.start(cas);
             }
         };
         this.timer.addAlert(new Alert(timeToTrigger, listener));

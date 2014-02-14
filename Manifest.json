@@ -16,6 +16,7 @@
             "icon":"goldfury",
             "alerts": [
                 { "type":"color", "time":"300", "color":"#CDEE69" },
+                { "type":"sound", "time":"299", "src":"beep" },
                 { "type":"color", "time":"299", "color":"white" },
                 { "type":"color", "time":"60", "color":"#FFE377" },
                 { "type":"color", "time":"30", "color":"#E09690" }
@@ -30,6 +31,7 @@
             "icon":"firegiant",
             "alerts": [
                 { "type":"color", "time":"300", "color":"#CDEE69" },
+                { "type":"sound", "time":"299", "src":"beep2.wav" },
                 { "type":"color", "time":"299", "color":"white" },
                 { "type":"color", "time":"60", "color":"#FFE377" },
                 { "type":"color", "time":"30", "color":"#E09690" }
