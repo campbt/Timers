@@ -155,6 +155,13 @@ public class Server{
 							}
 							else if (message.actionToPerform==BUILDTIMERLIST)
 							{
+								try{
+								writer.write("TEST4\r\n");
+								writer.flush();
+								}
+								catch(IOException e){
+									
+								}
 								sendMessage(new Message(BUILDTIMERLIST,timer.getId(),timer.getState(),timer.getTime(),message.ip),message.ip);
 							}
 	                    } 
@@ -201,7 +208,7 @@ public class Server{
 	{
 		try
 		{
-			if(ip=="")
+			if(ip.equals(""))
 			{
 				
 				if(message.actionToPerform==SENDMESSAGE)
@@ -235,7 +242,7 @@ public class Server{
 					}
 				}
 			}
-			else if (ip!="")
+			else if (!ip.equals(""))
 			{
 				if(message.actionToPerform==BUILDTIMERLIST)
 				{
