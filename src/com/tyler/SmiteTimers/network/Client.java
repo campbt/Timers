@@ -29,12 +29,14 @@ public class Client {
     private String ipAddr;
     private int port;
     private boolean isConnected;
+    private boolean logging;
     Map<Integer, Timer> timers; // Map of timer.id -> Timer object
     
     Writer writer = null;
 
-	public Client(String ipAddr, int port, Collection<Timer> timers)
+	public Client(String ipAddr, int port, Collection<Timer> timers, boolean logging)
 	{
+		this.logging=logging;
         this.ipAddr=ipAddr;
         this.port=port;
 		this.timers = new HashMap<Integer, Timer>();
@@ -42,12 +44,14 @@ public class Client {
             this.timers.put(timer.getId(), timer);
         }
 		messages = new LinkedBlockingQueue<Message>();
+		if(this.logging){
 		try {
 		    writer = new BufferedWriter(new OutputStreamWriter(
 		          new FileOutputStream("clientLog.txt"), "utf-8"));
 		} 
 		catch (IOException ex) {
-		} 
+		}
+		}
 		Thread startConnectionThread = new Thread()
 		{
 			boolean running=true;
@@ -60,12 +64,17 @@ public class Client {
 						Client.this.server = new ConnectionToServer(Client.this.socket1);
 						Client.this.messageHandling.start();
 						this.running=false;
+						if(Client.this.logging){
 						writer.write("Connection established to server \r\n");
 						writer.flush();
+						}
 						for(Timer timer : Client.this.timers.values())
 						{
 							Message message = new Message(BUILDTIMERLIST,timer.getId(),timer.getState(),timer.getTimerLength(),timer.getTime());
+							if(Client.this.logging){
 							writer.write("Sending a message\r\n");
+							writer.flush();
+							}
 							Client.this.server.sendMessage(BUILDTIMERLIST, message);
 						}
 					}
@@ -96,8 +105,10 @@ public class Client {
 				this.messageHandling = new MessageHandlingThread();
 				this.messageHandling.start();
 				this.isConnected=true;
+				if(this.logging){
 				writer.write("Connection established to server \r\n");
 				writer.flush();
+				}
 			}
 			catch (IOException e)
 			{
@@ -116,8 +127,10 @@ public class Client {
 	{
 		try
 		{
+			if(this.logging){
 			writer.write("Sending message to server with id: " + message.id +"\r\n");
 			writer.flush();
+			}
 			server.sendMessage(SENDMESSAGE,message);
 		}
 		catch(IOException e)
@@ -149,8 +162,11 @@ public class Client {
                         // TODO Put log message
                     	try
                     	{
+                    		if(Client.this.logging)
+                    		{
                     		writer.write("Have no timer for id: " + message.id);
                     		writer.flush();
+                    		}
                     	}
                     	catch(IOException e)
                     	{
@@ -186,12 +202,14 @@ public class Client {
 							if(actionToPerform == RESETTIMER)
 							{
 									//writer.write("MESSAGE IS RESETTIMER");
-									writer.flush();
+									//writer.flush();
 									int id = dIn.readInt();
 									int state = dIn.readInt();
 									long time = dIn.readLong();
+									if(Client.this.logging){
 									writer.write("Message received id: " + id + " with time " +time+"\r\n");
 									writer.flush();
+									}
 									messages.add(new Message(id, state, time));
 							}
 						}
@@ -199,8 +217,10 @@ public class Client {
 						{	
 							try
 							{
+								if(Client.this.logging){
 								writer.write("Connection to server appears to be lost \r\n");
 								writer.flush();
+								}
 							}
 							catch(IOException q)
 							{
@@ -232,8 +252,10 @@ public class Client {
 						
 						try
 						{
+							if(Client.this.logging){
 							writer.write("Sending heartbeat \r\n");
 							writer.flush();
+							}
 							ConnectionToServer.this.sendMessage(HEARTBEAT, null);
 						}
 						catch(IOException e)

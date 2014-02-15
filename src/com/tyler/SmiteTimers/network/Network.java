@@ -14,19 +14,26 @@ public class Network implements Timer.StateChangedListener {
 	private static final byte HEARTBEAT = 2;
 	private static final byte BUILDTIMERLIST = 3;
 	
+	boolean logging;
 	boolean isServer;
 	Server server;
 	Client client;
 	Writer writer;
 	
-	public Network(int port, Collection<Timer> timers){
+	public Network(int port, Collection<Timer> timers, boolean logging){
+		this.logging=logging;
+		if(this.logging)
+		{
 		try {
 		    writer = new BufferedWriter(new OutputStreamWriter(
 		          new FileOutputStream("networkLog.txt"), "utf-8"));
 		} 
 		catch (IOException ex) {
 		}
-		server = new Server(port,timers);
+		}
+		server = new Server(port,timers,this.logging);
+		if(this.logging)
+		{
 		try {
 			writer.write("Running as server\r\n");
 			writer.flush();
@@ -34,15 +41,20 @@ public class Network implements Timer.StateChangedListener {
 		{
 			
 		}
+		}
 		isServer=true;
 	}
-	public Network(String ip, int port, Collection<Timer> timers){
+	public Network(String ip, int port, Collection<Timer> timers, boolean logging){
+		this.logging=logging;
+		if(this.logging){
 		try {
 		    writer = new BufferedWriter(new OutputStreamWriter(
 		          new FileOutputStream("networkLog.txt"), "utf-8"));
 		} 
 		catch (IOException ex) {
 		}
+		}
+		if(this.logging){
 		try {
 			writer.write("Running as client\r\n");
 			writer.flush();
@@ -50,12 +62,14 @@ public class Network implements Timer.StateChangedListener {
 		{
 			
 		}
-		client = new Client(ip, port, timers);
+		}
+		client = new Client(ip, port, timers,this.logging);
 		isServer=false;
 	}
 	public void sendMessage(Message message)
 	{
 		if(isServer){
+			if(this.logging){
 			try{
 				writer.write("Having server send message: "+message.id+"\r\n");
 				writer.flush();
@@ -63,15 +77,18 @@ public class Network implements Timer.StateChangedListener {
 			catch(IOException e){
 				
 			}
+			}
 			message.actionToPerform=SENDMESSAGE;
 			server.sendMessage(message,"");
 		} else {
+			if(this.logging){
 			try{
 				writer.write("Having client send message: "+message.id+"\r\n");
 				writer.flush();
 			}
 			catch(IOException e){
 				
+			}
 			}
 			client.sendMessage(message);
 		}
@@ -98,11 +115,14 @@ public class Network implements Timer.StateChangedListener {
 	}
 	@Override
 	public void stateChanged(Timer timer){
-		try{
-			writer.write("State change detected\r\n");
-			writer.flush();
-		}catch(IOException e)
+		if(this.logging)
 		{
+			try{
+				writer.write("State change detected\r\n");
+				writer.flush();
+			}catch(IOException e)
+			{
+			}
 		}
 		sendMessage(new Message(timer.getId(), timer.getState(), timer.getTime()));
 	}

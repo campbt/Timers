@@ -23,6 +23,7 @@ public class Server{
 	private static final byte HEARTBEAT = 2;
 	private static final byte BUILDTIMERLIST = 3;
 	
+	private boolean logging;
 	private ArrayList<ConnectionToClient> clientList;
 	private LinkedBlockingQueue<Message> messages;
 	private ServerSocket serverSocket;
@@ -32,19 +33,22 @@ public class Server{
     Writer writer = null;
     int messageNumber;
     
-	public Server(int port, Collection<Timer> timers)
+	public Server(int port, Collection<Timer> timers,boolean logging)
 	{
+		this.logging=logging;
 		this.timers = new HashMap<Integer, Timer>();
         for(Timer timer: timers) {
             this.timers.put(timer.getId(), timer);
         }
 		messageNumber=0;
+		if(this.logging){
 		try {
 		    writer = new BufferedWriter(new OutputStreamWriter(
 		          new FileOutputStream("serverLog.txt"), "utf-8"));
 		} 
 		catch (IOException ex) {
-		} 
+		}
+		}
 		clientList = new ArrayList<ConnectionToClient>();
 		messages = new LinkedBlockingQueue<Message>();
 		//clientMap = new HashMap<String, ConnectionToClient>();
@@ -64,8 +68,10 @@ public class Server{
 					try
 					{
 						Socket socket1 = serverSocket.accept(); //When a client attempts to connect, this accepts the connection
+						if(Server.this.logging){
 						writer.write("Connection established to" + socket1.getInetAddress().toString() + "\r\n");
 						writer.flush();
+						}
 						clientList.add(new ConnectionToClient(socket1));
 					}
 					catch(IOException e)
@@ -96,8 +102,11 @@ public class Server{
 					{
 						try
 						{
+							if(Server.this.logging)
+							{
 							writer.write("Sending heartbeat \r\n");
 							writer.flush();
+							}
 							client.send(HEARTBEAT, null);
 						}
 						catch(IOException e)
@@ -120,8 +129,10 @@ public class Server{
 						try
 						{
 							messageNumber++;
+							if(Server.this.logging){
 							writer.write("Message number "+messageNumber+" received: " + message.id + " from " + message.ip + "\r\n");
 							writer.flush();
+							}
 						}
 						catch (IOException e)
 						{
@@ -178,8 +189,10 @@ public class Server{
 	                            // TODO Put log message
 							try
 							{
+								if(Server.this.logging){
 	                            writer.write("Have no timer for id: " + message.id + "\r\n");
 	                            writer.flush();
+								}
 							}
 							catch(IOException e)
 							{
@@ -192,8 +205,10 @@ public class Server{
 					{
 						try
 						{
+							if(Server.this.logging){
 							writer.write("Thread was interruped \r\n");
 							writer.flush();
+							}
 						}
 						catch (IOException q){
 						}
@@ -220,15 +235,18 @@ public class Server{
 						//if(message.ip != null && !(client.socket.getInetAddress().toString().equals(message.ip))){
 						try
 						{
+							if(this.logging){
 							writer.write("Source: " +message.ip+"\r\n");
 							writer.write("Destination: " + client.socket.getInetAddress().toString()+"\r\n");
 							writer.flush();
+							}
 						}
 						catch(IOException e)
 						{
 						}
 						if(!(client.socket.getInetAddress().toString().equals(message.ip)))
 						{
+							if(this.logging){
 							try{
 								writer.write("Forwarding message to: "+ client.socket.getInetAddress().toString() + "\r\n");
 								writer.flush();
@@ -236,6 +254,7 @@ public class Server{
 							catch(IOException e)
 							{
 						
+							}
 							}
 							client.send(message.actionToPerform,message);
 						}
@@ -295,14 +314,17 @@ public class Server{
 								int id = dIn.readInt();
 								int state = dIn.readInt();
 								long time = dIn.readLong();
-
+								if(Server.this.logging){
 								writer.write("Client has sent message: "+ id +" with time " + time + "\r\n");
 								writer.write("Client IP is: " + socket.getInetAddress().toString() +"\r\n");
 								writer.flush();
+								}
 
 								addMessage(new Message(actionToPerform,id, state, time, socket.getInetAddress().toString()));
+								if(Server.this.logging){
 								writer.write("Size of messages = " + messages.size() + "\r\n");
 								writer.flush();
+								}
 							}
 							else if (actionToPerform == BUILDTIMERLIST)
 							{
@@ -318,8 +340,10 @@ public class Server{
 						{
 							try
 							{
+								if(Server.this.logging){
 								writer.write("Connection to a client appears to be lost \r\n");
 								writer.flush();
+								}
 								running=false;
 								Server.this.clientList.remove(ConnectionToClient.this);
 							}
@@ -347,7 +371,9 @@ public class Server{
 			{
 				dOut.writeByte(HEARTBEAT);
 				dOut.flush();
+				if(Server.this.logging){
 				writer.write("Heartbeat sent\r\n");
+				}
 			}
  		}
 	}
