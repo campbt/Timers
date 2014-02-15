@@ -65,6 +65,7 @@ public class Client {
 						for(Timer timer : Client.this.timers.values())
 						{
 							Message message = new Message(BUILDTIMERLIST,timer.getId(),timer.getState(),timer.getTimerLength(),timer.getTime());
+							writer.write("Sending a message\r\n");
 							Client.this.server.sendMessage(BUILDTIMERLIST, message);
 						}
 					}
@@ -184,6 +185,8 @@ public class Client {
 							byte actionToPerform = dIn.readByte();//Will time out after 15 seconds.  Determines what action to perform.
 							if(actionToPerform == RESETTIMER)
 							{
+									//writer.write("MESSAGE IS RESETTIMER");
+									writer.flush();
 									int id = dIn.readInt();
 									int state = dIn.readInt();
 									long time = dIn.readLong();

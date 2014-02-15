@@ -129,23 +129,23 @@ public class Server{
 						}
 						if(Server.this.timers.containsKey(message.id)) 
 						{
-							try{
+							/*try{
 							writer.write("TEST1\r\n");
 							writer.flush();
 							}
 							catch (IOException e)
 							{
 								
-							}
+							}*/
 							Timer timer = Server.this.timers.get(message.id);
 							if(message.actionToPerform==SENDMESSAGE){
-								try{
+								/*try{
 									writer.write("TEST2\r\n");
 									writer.flush();
 								}
 								catch(IOException e)
 								{
-								}
+								}*/
 								if(!timer.RecentlyStarted())
 								{
 									timer.setState(message.state);
@@ -155,13 +155,13 @@ public class Server{
 							}
 							else if (message.actionToPerform==BUILDTIMERLIST)
 							{
-								try{
+								/*try{
 								writer.write("TEST4\r\n");
 								writer.flush();
 								}
 								catch(IOException e){
 									
-								}
+								}*/
 								sendMessage(new Message(BUILDTIMERLIST,timer.getId(),timer.getState(),timer.getTime(),message.ip),message.ip);
 							}
 	                    } 
@@ -213,8 +213,8 @@ public class Server{
 				
 				if(message.actionToPerform==SENDMESSAGE)
 				{
-					writer.write("REACHED HERE\r\n");
-					writer.flush();
+					//writer.write("REACHED HERE\r\n");
+					//writer.flush();
 					for(ConnectionToClient client : clientList)
 					{	
 						//if(message.ip != null && !(client.socket.getInetAddress().toString().equals(message.ip))){
@@ -246,14 +246,14 @@ public class Server{
 			{
 				if(message.actionToPerform==BUILDTIMERLIST)
 				{
-					writer.write("REACHED HERE2\r\n");
-					writer.flush();
+					//writer.write("REACHED HERE2\r\n");
+					//writer.flush();
 					for(ConnectionToClient client: clientList)
 					{
 						if(client.socket.getInetAddress().toString().equals(ip))
 						{
-							writer.write("REACHED HERE3");
-							writer.flush();
+							//writer.write("REACHED HERE3");
+							//writer.flush();
 							client.send(SENDMESSAGE,message);
 						}
 					}
@@ -336,14 +336,14 @@ public class Server{
 		}
 		public synchronized void send(byte actionToPerform, Message message) throws IOException
 		{
-			if(message.actionToPerform == SENDMESSAGE){
+			if(actionToPerform == SENDMESSAGE){
 				dOut.writeByte(SENDMESSAGE);
 				dOut.writeInt(message.id);
 				dOut.writeInt(message.state);
 				dOut.writeLong(message.time);
 				dOut.flush();
 			}
-			else if (message.actionToPerform == HEARTBEAT)
+			else if (actionToPerform == HEARTBEAT)
 			{
 				dOut.writeByte(HEARTBEAT);
 				dOut.flush();
