@@ -140,7 +140,7 @@ public class Server{
 							}
 							else if (message.actionToPerform==BUILDTIMERLIST)
 							{
-								sendMessage(new Message(SENDMESSAGE,timer.getId(),timer.getState(),timer.getTime(),message.ip),message.ip);
+								sendMessage(new Message(BUILDTIMERLIST,timer.getId(),timer.getState(),timer.getTime(),message.ip),message.ip);
 							}
 	                    } 
 						else 
@@ -191,6 +191,8 @@ public class Server{
 				
 				if(message.actionToPerform==SENDMESSAGE)
 				{
+					writer.write("REACHED HERE");
+					writer.flush();
 					for(ConnectionToClient client : clientList)
 					{	
 						//if(message.ip != null && !(client.socket.getInetAddress().toString().equals(message.ip))){
@@ -222,10 +224,14 @@ public class Server{
 			{
 				if(message.actionToPerform==BUILDTIMERLIST)
 				{
+					writer.write("REACHED HERE2");
+					writer.flush();
 					for(ConnectionToClient client: clientList)
 					{
 						if(client.socket.getInetAddress().toString().equals(ip))
 						{
+							writer.write("REACHED HERE3");
+							writer.flush();
 							client.send(SENDMESSAGE,message);
 						}
 					}
