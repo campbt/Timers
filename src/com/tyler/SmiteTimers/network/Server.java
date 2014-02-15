@@ -129,8 +129,23 @@ public class Server{
 						}
 						if(Server.this.timers.containsKey(message.id)) 
 						{
+							try{
+							writer.write("TEST1\r\n");
+							writer.flush();
+							}
+							catch (IOException e)
+							{
+								
+							}
 							Timer timer = Server.this.timers.get(message.id);
 							if(message.actionToPerform==SENDMESSAGE){
+								try{
+									writer.write("TEST2\r\n");
+									writer.flush();
+								}
+								catch(IOException e)
+								{
+								}
 								if(!timer.RecentlyStarted())
 								{
 									timer.setState(message.state);
@@ -191,7 +206,7 @@ public class Server{
 				
 				if(message.actionToPerform==SENDMESSAGE)
 				{
-					writer.write("REACHED HERE");
+					writer.write("REACHED HERE\r\n");
 					writer.flush();
 					for(ConnectionToClient client : clientList)
 					{	
@@ -224,7 +239,7 @@ public class Server{
 			{
 				if(message.actionToPerform==BUILDTIMERLIST)
 				{
-					writer.write("REACHED HERE2");
+					writer.write("REACHED HERE2\r\n");
 					writer.flush();
 					for(ConnectionToClient client: clientList)
 					{
