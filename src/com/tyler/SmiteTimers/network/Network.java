@@ -9,6 +9,11 @@ import java.util.Collection;
 
 import com.tyler.SmiteTimers.core.Timer;
 public class Network implements Timer.StateChangedListener {
+	private static final byte RESETTIMER = 1;
+	private static final byte SENDMESSAGE = 1;
+	private static final byte HEARTBEAT = 2;
+	private static final byte BUILDTIMERLIST = 3;
+	
 	boolean isServer;
 	Server server;
 	Client client;
@@ -58,7 +63,8 @@ public class Network implements Timer.StateChangedListener {
 			catch(IOException e){
 				
 			}
-			server.sendMessage(message,null);
+			message.actionToPerform=SENDMESSAGE;
+			server.sendMessage(message,"");
 		} else {
 			try{
 				writer.write("Having client send message: "+message.id+"\r\n");
