@@ -18,7 +18,7 @@ import java.util.concurrent.LinkedBlockingQueue;
 import com.tyler.SmiteTimers.core.Timer;
 
 public class Server{
-	//private static final byte RESETTIMER = 1;
+	private static final byte RESETTIMER = 1;
 	private static final byte SENDMESSAGE = 1;
 	private static final byte HEARTBEAT = 2;
 	private static final byte BUILDTIMERLIST = 3;
@@ -140,7 +140,7 @@ public class Server{
 							}
 							else if (message.actionToPerform==BUILDTIMERLIST)
 							{
-								sendMessage(new Message(message.actionToPerform,timer.getId(),timer.getState(),timer.getTime(),message.ip),message.ip);
+								sendMessage(new Message(SENDMESSAGE,timer.getId(),timer.getState(),timer.getTime(),message.ip),message.ip);
 							}
 	                    } 
 						else 

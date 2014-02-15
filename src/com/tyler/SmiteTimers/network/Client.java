@@ -59,6 +59,7 @@ public class Client {
 						Client.this.socket1 = new Socket(InetAddress.getByName(Client.this.ipAddr),Client.this.port);
 						Client.this.server = new ConnectionToServer(Client.this.socket1);
 						Client.this.messageHandling.start();
+						this.running=false;
 						writer.write("Connection established to server \r\n");
 						writer.flush();
 						for(Timer timer : Client.this.timers.values())
